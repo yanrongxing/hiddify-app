@@ -106,7 +106,9 @@ class SettingsPage extends HookConsumerWidget {
                               ),
                               const Gap(8),
                               Text(
-                                isAuthenticated ? 'Premium Member / 高級會員' : 'Guest / 訪客',
+                              isAuthenticated
+                                  ? (user?.planName ?? '\u514d\u8d39\u7528\u6237')
+                                  : 'Guest / \u8a2a\u5ba2',
                                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                             ],

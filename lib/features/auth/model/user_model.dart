@@ -32,6 +32,9 @@ class UserModel with _$UserModel {
     /// Active plan ID.
     @JsonKey(name: 'plan_id') int? planId,
 
+    /// Active plan name (fetched from subscribe info).
+    @JsonKey(name: 'plan_name') String? planName,
+
     /// Uploaded traffic in bytes.
     @Default(0) int u,
 

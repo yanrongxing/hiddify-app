@@ -209,8 +209,11 @@ class HomeDataCard extends HookConsumerWidget {
     }
 
     final subInfo = profile is RemoteProfileEntity ? (profile as RemoteProfileEntity).subInfo : null;
+    final authState = ref.watch(authNotifierProvider);
+    final authUser = authState is Authenticated ? authState.user : null;
 
-    final plan = "Premium Plan";
+    // Plan name: prefer auth user's plan name (from API), fallback to profile sub info
+    final plan = authUser?.planName ?? (subInfo != null ? '订阅套餐' : '暂无套餐');
     final daysLeft = subInfo != null && !subInfo.isExpired ? subInfo.remaining.inDays : 0;
     final usagePercent = subInfo != null ? subInfo.ratio : 0.0;
 

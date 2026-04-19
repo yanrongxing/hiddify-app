@@ -90,8 +90,9 @@ class OrderDetailNotifier extends _$OrderDetailNotifier {
         // Offset / direct success
         state = AsyncData(currentState.copyWith(isCheckingOut: false, pollStatus: 'success'));
         _onPaymentSuccess();
-      } else if (type == 0 && data is String) {
-        // Navigate to payment URL
+      } else if ((type == 0 || type == 1) && data is String) {
+        // type=0: redirect URL, type=1: payment counter page URL
+        // Both are handled the same way: open in external browser.
         final url = Uri.parse(data);
         if (await canLaunchUrl(url)) {
           await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -100,10 +101,8 @@ class OrderDetailNotifier extends _$OrderDetailNotifier {
         } else {
           throw Exception('无法打开支付链接');
         }
-      } else if (type == 1 && data is String) {
-        // HTML form... we are on a mobile app so this is tricky.
-        // Let's assume xboard usually returns URLs for external payment gateways.
-        throw Exception('不支持的支付返回类型');
+      } else {
+        throw Exception('未知的支付返回类型: type=$type');
       }
     } catch (e, st) {
       state = AsyncData(currentState.copyWith(isCheckingOut: false));

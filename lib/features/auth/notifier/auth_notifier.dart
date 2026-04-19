@@ -177,8 +177,12 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
     if (current is! Authenticated) return;
     try {
       final info = await _authRepo.getSubscribeInfo();
+      // Extract plan name from nested plan object if available
+      final planMap = info['plan'] as Map<String, dynamic>?;
+      final planName = planMap?['name'] as String?;
       final updatedUser = current.user.copyWith(
         planId: info['plan_id'] as int?,
+        planName: planName,
         u: info['u'] as int? ?? 0,
         d: info['d'] as int? ?? 0,
         transferEnable: info['transfer_enable'] as int? ?? 0,

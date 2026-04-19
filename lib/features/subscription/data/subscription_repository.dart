@@ -108,7 +108,9 @@ class SubscriptionRepository with InfraLogger {
   /// GET /api/v1/user/order/detail
   Future<OrderModel> getOrderDetail(String tradeNo) async {
     try {
+      loggy.info('[getOrderDetail] request -> trade_no: $tradeNo');
       final response = await _dio.get('/api/v1/user/order/detail', queryParameters: {'trade_no': tradeNo});
+      loggy.info('[getOrderDetail] response -> ${response.data}');
       return OrderModel.fromJson(response.data['data'] as Map<String, dynamic>);
     } on DioException catch (e) {
       loggy.error('Get order detail failed', e);
@@ -133,18 +135,23 @@ class SubscriptionRepository with InfraLogger {
   /// POST /api/v1/user/order/checkout
   Future<Map<String, dynamic>> checkout(String tradeNo, int method) async {
     try {
+      final requestData = {
+        'trade_no': tradeNo,
+        'method': method,
+      };
+      loggy.info('[checkout] request -> $requestData');
       final response = await _dio.post(
         '/api/v1/user/order/checkout',
-        data: {
-          'trade_no': tradeNo,
-          'method': method,
-        },
+        data: requestData,
       );
+      loggy.info('[checkout] raw response.data -> ${response.data}');
       // Returns type (0=URL, -1=offset) and data (the URL or true)
-      return {
+      final result = {
         'type': response.data['type'],
         'data': response.data['data'],
       };
+      loggy.info('[checkout] parsed result -> type=${result["type"]} (${result["type"]?.runtimeType}), data=${result["data"]} (${result["data"]?.runtimeType})');
+      return result;
     } on DioException catch (e) {
       loggy.error('Checkout failed', e);
       throw SubscriptionException(_extractErrorMessage(e));
