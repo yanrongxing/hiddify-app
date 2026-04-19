@@ -117,7 +117,7 @@ class SettingsPage extends HookConsumerWidget {
                 const Gap(24),
                 if (!isAuthenticated)
                   FilledButton.icon(
-                    onPressed: () => context.go('/login'),
+                    onPressed: () => context.push('/login'),
                     icon: const Icon(Icons.login_rounded),
                     label: const Text('登入 / 註冊'),
                     style: FilledButton.styleFrom(
