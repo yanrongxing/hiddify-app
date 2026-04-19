@@ -247,9 +247,9 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                       name: 'inAppBrowser',
                       path: '/in-app-browser',
                       pageBuilder: (_, state) {
-                        final url = state.uri.queryParameters['url']!;
+                        final targetUrl = state.uri.queryParameters['targetUrl']!;
                         final title = state.uri.queryParameters['title'] ?? 'Browser';
-                        return customTransition(TransitionType.slide, state.pageKey, InAppBrowserPage(url: url, title: title));
+                        return customTransition(TransitionType.slide, state.pageKey, InAppBrowserPage(url: targetUrl, title: title));
                       },
                     ),
                     if (!FeatureFlags.hideAdvancedSettings)
