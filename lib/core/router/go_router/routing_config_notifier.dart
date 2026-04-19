@@ -93,7 +93,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           url = state.uri.queryParameters['url'];
         }
 
-        if (!introCompleted && state.matchedLocation != '/login') {
+        if (!introCompleted && !FeatureFlags.enableXlinkAuth) {
           return url != null ? '/intro?url=$url' : '/intro';
         } else if (isIntro) {
           if (url != null)
