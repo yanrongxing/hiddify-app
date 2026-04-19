@@ -44,7 +44,13 @@ class SettingsPage extends HookConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.goNamed('home'),
         ),
-        title: const SizedBox.shrink(),
+        title: Text(
+          "个人中心",
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 16, bottom: 84),
