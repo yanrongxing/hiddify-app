@@ -26,7 +26,6 @@ class GeneralPage extends HookConsumerWidget {
         children: [
           SettingsGroupWrapper(
             children: [
-              const LocalePrefTile(),
               const ThemeModePrefTile(),
               const EnableAnalyticsPrefTile(),
               SwitchListTile.adaptive(

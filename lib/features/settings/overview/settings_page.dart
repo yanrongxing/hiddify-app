@@ -10,6 +10,7 @@ import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
+import 'package:hiddify/core/localization/locale_preferences.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 enum ConfigOptionSection {
@@ -51,6 +52,27 @@ class SettingsPage extends HookConsumerWidget {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.translate_rounded),
+            onPressed: () async {
+              final locale = ref.read(localePreferencesProvider);
+              final selectedLocale = await ref
+                  .read(dialogNotifierProvider.notifier)
+                  .showSettingPicker<AppLocale>(
+                    title: t.pages.settings.general.locale,
+                    selected: locale,
+                    onReset: () => ref.read(localePreferencesProvider.notifier).changeLocale(AppLocale.en),
+                    options: AppLocale.values,
+                    getTitle: (e) => e.localeName,
+                  );
+              if (selectedLocale != null) {
+                await ref.read(localePreferencesProvider.notifier).changeLocale(selectedLocale);
+              }
+            },
+          ),
+          const Gap(8),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 16, bottom: 84),
