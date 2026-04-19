@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hiddify/utils/uri_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key});
@@ -28,8 +28,11 @@ class SupportPage extends StatelessWidget {
             icon: Icons.chat_bubble_outline_rounded,
             title: '人工客服',
             subtitle: '联系在线客服获取即时帮助',
-            onTap: () {
-              UriUtils.tryLaunch(Uri.parse('https://tawk.to/chat/69e3f4246ef56e1c36f53d31/1jmh73cff'));
+            onTap: () async {
+              final url = Uri.parse('https://tawk.to/chat/69e3f4246ef56e1c36f53d31/1jmh73cff');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.inAppWebView);
+              }
             },
           ),
           const Gap(16),
