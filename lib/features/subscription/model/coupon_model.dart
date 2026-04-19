@@ -3,16 +3,24 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'coupon_model.freezed.dart';
 part 'coupon_model.g.dart';
 
+int _parseInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) return int.tryParse(value) ?? 0;
+  return 0;
+}
+
 @freezed
 class CouponModel with _$CouponModel {
   const CouponModel._();
 
   const factory CouponModel({
     /// Coupon type: 1=fixed amount (cents), 2=percentage.
-    required int type,
+    @JsonKey(fromJson: _parseInt) required int type,
 
     /// Value: for type=1 it's cents, for type=2 it's percentage (e.g. 10 = 10%).
-    required int value,
+    @JsonKey(fromJson: _parseInt) required int value,
 
     /// Coupon display name.
     String? name,
