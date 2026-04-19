@@ -315,12 +315,28 @@ class HomeDataCard extends HookConsumerWidget {
                   onPressed: () async {
                     final isAuthenticated = ref.read(authNotifierProvider) is Authenticated;
                     if (!isAuthenticated) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('请先登录后再更新订阅'),
-                          backgroundColor: theme.colorScheme.error,
-                        ),
+                      final shouldLogin = await showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text('需要登录'),
+                            content: const Text('请先登录或注册后再更新订阅。'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('取消'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: const Text('前往登录/注册'),
+                              ),
+                            ],
+                          );
+                        },
                       );
+                      if (shouldLogin == true && context.mounted) {
+                        context.pushNamed('login');
+                      }
                       return;
                     }
                     final p = profile;

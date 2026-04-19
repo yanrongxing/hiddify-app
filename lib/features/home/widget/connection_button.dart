@@ -21,6 +21,8 @@ import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hiddify/utils/utils.dart';
 
 class RadarBorderPainter extends CustomPainter {
   final Color color;
@@ -154,12 +156,28 @@ class ConnectionButton extends HookConsumerWidget {
       isConnecting: isConnecting,
       onTap: switch (connectionStatus) {
         _ when !isAuthenticated => () async {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('请先登录后再连接 VPN'),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
+          final shouldLogin = await showDialog<bool>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('需要登录'),
+                content: const Text('请先登录或注册后再连接 VPN。'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('取消'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('前往登录/注册'),
+                  ),
+                ],
+              );
+            },
           );
+          if (shouldLogin == true && context.mounted) {
+            context.pushNamed('login');
+          }
         },
         AsyncData(value: Connected()) when requiresReconnect == true => () async {
           final activeProfile = await ref.read(activeProfileProvider.future);
@@ -167,8 +185,29 @@ class ConnectionButton extends HookConsumerWidget {
         },
         AsyncData(value: Disconnected()) || AsyncError() => () async {
           if (ref.read(activeProfileProvider).valueOrNull == null) {
-            await ref.read(dialogNotifierProvider.notifier).showNoActiveProfile();
-            ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
+            final shouldSubscribe = await showDialog<bool>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('无可用订阅'),
+                  content: const Text('您尚未订阅或订阅已过期，请前往购买订阅套餐。'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('取消'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text('前往订阅'),
+                    ),
+                  ],
+                );
+              },
+            );
+            if (shouldSubscribe == true && context.mounted) {
+              UriUtils.tryLaunch(Uri.parse('https://47.79.38.161/#/plan'));
+            }
+            return;
           }
           if (await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
             return await ref.read(connectionNotifierProvider.notifier).toggleConnection();
