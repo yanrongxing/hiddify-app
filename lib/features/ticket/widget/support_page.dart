@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hiddify/features/ticket/widget/in_app_browser_page.dart';
 
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key});
@@ -28,10 +29,14 @@ class SupportPage extends StatelessWidget {
             title: '人工客服',
             subtitle: '联系在线客服获取即时帮助',
             onTap: () {
-              context.pushNamed('inAppBrowser', queryParameters: {
-                'targetUrl': 'https://tawk.to/chat/69e3f4246ef56e1c36f53d31/1jmh73cff',
-                'title': '人工客服',
-              });
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const InAppBrowserPage(
+                    url: 'https://tawk.to/chat/69e3f4246ef56e1c36f53d31/1jmh73cff',
+                    title: '人工客服',
+                  ),
+                ),
+              );
             },
           ),
           const Gap(16),
