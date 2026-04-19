@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/preferences/feature_flags.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -146,31 +148,33 @@ class SettingsPage extends HookConsumerWidget {
             icon: Icons.layers_rounded,
             namedLocation: context.namedLocation('general'),
           ),
-          SettingsSection(
-            title: t.pages.settings.routing.title,
-            icon: Icons.route_rounded,
-            namedLocation: context.namedLocation('routeOptions'),
-          ),
-          SettingsSection(
-            title: t.pages.settings.dns.title,
-            icon: Icons.dns_rounded,
-            namedLocation: context.namedLocation('dnsOptions'),
-          ),
-          SettingsSection(
-            title: t.pages.settings.inbound.title,
-            icon: Icons.input_rounded,
-            namedLocation: context.namedLocation('inboundOptions'),
-          ),
-          SettingsSection(
-            title: t.pages.settings.tlsTricks.title,
-            icon: Icons.content_cut_rounded,
-            namedLocation: context.namedLocation('tlsTricks'),
-          ),
-          SettingsSection(
-            title: t.pages.settings.warp.title,
-            icon: Icons.cloud_rounded,
-            namedLocation: context.namedLocation('warpOptions'),
-          ),
+          if (!FeatureFlags.hideAdvancedSettings) ...[
+            SettingsSection(
+              title: t.pages.settings.routing.title,
+              icon: Icons.route_rounded,
+              namedLocation: context.namedLocation('routeOptions'),
+            ),
+            SettingsSection(
+              title: t.pages.settings.dns.title,
+              icon: Icons.dns_rounded,
+              namedLocation: context.namedLocation('dnsOptions'),
+            ),
+            SettingsSection(
+              title: t.pages.settings.inbound.title,
+              icon: Icons.input_rounded,
+              namedLocation: context.namedLocation('inboundOptions'),
+            ),
+            SettingsSection(
+              title: t.pages.settings.tlsTricks.title,
+              icon: Icons.content_cut_rounded,
+              namedLocation: context.namedLocation('tlsTricks'),
+            ),
+            SettingsSection(
+              title: t.pages.settings.warp.title,
+              icon: Icons.cloud_rounded,
+              namedLocation: context.namedLocation('warpOptions'),
+            ),
+          ],
           if (PlatformUtils.isIOS)
             Material(
               child: ListTile(
@@ -191,6 +195,17 @@ class SettingsPage extends HookConsumerWidget {
               title: t.pages.about.title,
               icon: Icons.info_rounded,
               namedLocation: context.namedLocation('about'),
+            ),
+          ],
+          // ── Xlink: Logout button ──
+          if (FeatureFlags.enableXlinkAuth) ...[
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout_rounded, color: Colors.red),
+              title: const Text('退出登录', style: TextStyle(color: Colors.red)),
+              onTap: () async {
+                await ref.read(authNotifierProvider.notifier).logout();
+              },
             ),
           ],
         ],

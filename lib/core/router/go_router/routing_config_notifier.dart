@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hiddify/core/preferences/feature_flags.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/adaptive_layout/my_adaptive_layout.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
@@ -7,6 +8,9 @@ import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.
 import 'package:hiddify/core/router/go_router/helper/custom_transition.dart';
 import 'package:hiddify/core/router/go_router/refresh_listenable.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
+import 'package:hiddify/features/auth/model/auth_state.dart';
+import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
+import 'package:hiddify/features/auth/widget/login_page.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/log/overview/logs_page.dart';
@@ -63,6 +67,21 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
     if (isMobileBreakpoint == null) return loadingConfig;
     return RoutingConfig(
       redirect: (context, state) {
+        // ── Xlink Auth Guard ──
+        if (FeatureFlags.enableXlinkAuth) {
+          final authState = ref.read(authNotifierProvider);
+          final isLoginPage = state.matchedLocation == '/login';
+          final isAuthenticated = authState is Authenticated;
+
+          if (!isAuthenticated && !isLoginPage) {
+            return '/login';
+          }
+          if (isAuthenticated && isLoginPage) {
+            return '/home';
+          }
+        }
+
+        // ── Original Intro Guard ──
         final introCompleted = ref.read(Preferences.introCompleted);
         final isIntro = state.matchedLocation == '/intro';
         // fix path-parameters for deep link
@@ -76,7 +95,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           url = state.uri.queryParameters['url'];
         }
 
-        if (!introCompleted) {
+        if (!introCompleted && !FeatureFlags.enableXlinkAuth) {
           return url != null ? '/intro?url=$url' : '/intro';
         } else if (isIntro) {
           if (url != null)
@@ -168,44 +187,48 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.slide, state.pageKey, const GeneralPage()),
                     ),
-                    GoRoute(
-                      name: 'routeOptions',
-                      path: '/route-options',
-                      pageBuilder: (_, state) =>
-                          customTransition(TransitionType.slide, state.pageKey, const RouteOptionsPage()),
-                      routes: <GoRoute>[
-                        GoRoute(
-                          name: 'perAppProxy',
-                          path: '/per-app-proxy',
-                          pageBuilder: (_, state) =>
-                              customTransition(TransitionType.slide, state.pageKey, const PerAppProxyPage()),
-                        ),
-                      ],
-                    ),
-                    GoRoute(
-                      name: 'dnsOptions',
-                      path: '/dns-options',
-                      pageBuilder: (_, state) =>
-                          customTransition(TransitionType.slide, state.pageKey, const DnsOptionsPage()),
-                    ),
-                    GoRoute(
-                      name: 'inboundOptions',
-                      path: '/inbound-options',
-                      pageBuilder: (_, state) =>
-                          customTransition(TransitionType.slide, state.pageKey, const InboundOptionsPage()),
-                    ),
-                    GoRoute(
-                      name: 'tlsTricks',
-                      path: '/tls-tricks',
-                      pageBuilder: (_, state) =>
-                          customTransition(TransitionType.slide, state.pageKey, const TlsTricksPage()),
-                    ),
-                    GoRoute(
-                      name: 'warpOptions',
-                      path: '/warp-options',
-                      pageBuilder: (_, state) =>
-                          customTransition(TransitionType.slide, state.pageKey, const WarpOptionsPage()),
-                    ),
+                    if (!FeatureFlags.hideAdvancedSettings)
+                      GoRoute(
+                        name: 'routeOptions',
+                        path: '/route-options',
+                        pageBuilder: (_, state) =>
+                            customTransition(TransitionType.slide, state.pageKey, const RouteOptionsPage()),
+                        routes: <GoRoute>[
+                          if (!FeatureFlags.hidePerAppProxy)
+                            GoRoute(
+                              name: 'perAppProxy',
+                              path: '/per-app-proxy',
+                              pageBuilder: (_, state) =>
+                                  customTransition(TransitionType.slide, state.pageKey, const PerAppProxyPage()),
+                            ),
+                        ],
+                      ),
+                    if (!FeatureFlags.hideAdvancedSettings) ...[
+                      GoRoute(
+                        name: 'dnsOptions',
+                        path: '/dns-options',
+                        pageBuilder: (_, state) =>
+                            customTransition(TransitionType.slide, state.pageKey, const DnsOptionsPage()),
+                      ),
+                      GoRoute(
+                        name: 'inboundOptions',
+                        path: '/inbound-options',
+                        pageBuilder: (_, state) =>
+                            customTransition(TransitionType.slide, state.pageKey, const InboundOptionsPage()),
+                      ),
+                      GoRoute(
+                        name: 'tlsTricks',
+                        path: '/tls-tricks',
+                        pageBuilder: (_, state) =>
+                            customTransition(TransitionType.slide, state.pageKey, const TlsTricksPage()),
+                      ),
+                      GoRoute(
+                        name: 'warpOptions',
+                        path: '/warp-options',
+                        pageBuilder: (_, state) =>
+                            customTransition(TransitionType.slide, state.pageKey, const WarpOptionsPage()),
+                      ),
+                    ],
                     if (isMobileBreakpoint) ...[
                       GoRoute(
                         name: 'logs',
@@ -247,6 +270,8 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           ],
         ),
         GoRoute(name: 'intro', path: '/intro', builder: (_, _) => const IntroPage()),
+        if (FeatureFlags.enableXlinkAuth)
+          GoRoute(name: 'login', path: '/login', builder: (_, _) => const LoginPage()),
       ],
     );
   }
