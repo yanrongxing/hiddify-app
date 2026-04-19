@@ -476,6 +476,28 @@
           "delay": "Noise delay"
         }
       }
+    },
+    "share": {
+      "title": "Invite & Earn",
+      "commissionBalance": "Commission Balance",
+      "inviteCount": "Invitees",
+      "commissionRate": "Commission Rate",
+      "commissionRateL1": "L1 Rate",
+      "commissionRateL2": "L2 Rate",
+      "commissionRateL3": "L3 Rate",
+      "pendingCommission": "Pending",
+      "totalCommission": "Total Earned",
+      "inviteLinks": "Invite Links",
+      "generateCode": "Generate Code",
+      "generating": "Generating...",
+      "noCodesYet": "No invite codes yet. Tap generate to create one.",
+      "copyLink": "Copy Link",
+      "copied": "Copied!",
+      "shareLink": "Share",
+      "shareMessage": "Join me on XLINK VPN! Sign up here: ${url}",
+      "loginRequired": "Please log in to use the invite feature.",
+      "loginButton": "Log In",
+      "errorRetry": "Retry"
     }
   },
   "components": {

@@ -475,6 +475,28 @@
           "delay": "噪声延迟"
         }
       }
+    },
+    "share": {
+      "title": "邀请返现",
+      "commissionBalance": "可用余额",
+      "inviteCount": "邀请人数",
+      "commissionRate": "返利比例",
+      "commissionRateL1": "L1 比例",
+      "commissionRateL2": "L2 比例",
+      "commissionRateL3": "L3 比例",
+      "pendingCommission": "待确认佣金",
+      "totalCommission": "累计佣金",
+      "inviteLinks": "邀请链接",
+      "generateCode": "生成邀请码",
+      "generating": "生成中...",
+      "noCodesYet": "暂无邀请码，点击生成按钮创建。",
+      "copyLink": "复制链接",
+      "copied": "已复制！",
+      "shareLink": "分享",
+      "shareMessage": "加入 XLINK VPN，注册链接：${url}",
+      "loginRequired": "请先登录以使用邀请功能。",
+      "loginButton": "前往登录",
+      "errorRetry": "重试"
     }
   },
   "components": {
