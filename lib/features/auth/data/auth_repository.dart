@@ -150,6 +150,21 @@ class AuthRepository with InfraLogger {
     }
   }
 
+  /// Get site configuration (guest endpoint, no auth needed).
+  ///
+  /// GET /api/v1/guest/comm/config
+  /// Returns config with `is_email_verify`, `is_invite_force`, etc.
+  Future<Map<String, dynamic>> getSiteConfig() async {
+    try {
+      final response = await _dio.get('/api/v1/guest/comm/config');
+      return response.data['data'] as Map<String, dynamic>;
+    } on DioException catch (e) {
+      loggy.error('Get site config failed', e);
+      final message = _extractErrorMessage(e);
+      throw AuthException(message);
+    }
+  }
+
   /// Get current user info.
   ///
   /// GET /api/v1/user/info

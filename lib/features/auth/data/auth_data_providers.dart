@@ -11,3 +11,10 @@ const _xboardBaseUrl = 'https://47.79.38.161';
 AuthRepository authRepository(Ref ref) {
   return AuthRepository(baseUrl: _xboardBaseUrl);
 }
+
+/// Site configuration provider — fetches is_email_verify, is_invite_force, etc.
+@riverpod
+Future<Map<String, dynamic>> siteConfig(Ref ref) async {
+  final repo = ref.read(authRepositoryProvider);
+  return repo.getSiteConfig();
+}
