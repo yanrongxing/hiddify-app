@@ -72,3 +72,4 @@ windows/sign.cer
 .env
 .fvm
 .fvmrc
+core.tar.gz
