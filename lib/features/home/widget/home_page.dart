@@ -149,7 +149,6 @@ class HomeDataCard extends HookConsumerWidget {
     final theme = Theme.of(context);
     final subInfo = profile is RemoteProfileEntity ? (profile as RemoteProfileEntity).subInfo : null;
 
-    final name = profile.name;
     final plan = "Premium Plan";
     final daysLeft = subInfo != null && !subInfo.isExpired ? subInfo.remaining.inDays : 0;
     final usagePercent = subInfo != null ? subInfo.ratio : 0.0;
@@ -191,141 +190,143 @@ class HomeDataCard extends HookConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                  if (subInfo != null)
+                      if (subInfo != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: theme.colorScheme.primary,
+                                  boxShadow: [
+                                    BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.5), blurRadius: 8),
+                                  ],
+                                ),
+                              ),
+                              const Gap(8),
+                              Text(
+                                "$daysLeft DAYS",
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                  letterSpacing: 1.5,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (subInfo != null) ...[
+                    const Gap(16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Data Usage",
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontSize: 14,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: consumedStr.replaceAll(RegExp(r'[a-zA-Z\s]+'), ''),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " GiB",
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " / ${totalStr.replaceAll(RegExp(r'[a-zA-Z\s]+'), '')}",
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " GiB",
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      height: 8,
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: theme.colorScheme.primary,
-                              boxShadow: [
-                                BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.5), blurRadius: 8),
-                              ],
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: usagePercent,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF69d9c0), Color(0xFF26a28b)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
+                            borderRadius: BorderRadius.circular(4),
                           ),
-                          const Gap(8),
-                          Text(
-                            "$daysLeft DAYS",
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.onSurface,
-                              letterSpacing: 1.5,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-              if (subInfo != null) ...[
-                const Gap(16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Data Usage",
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                      ),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: consumedStr.replaceAll(RegExp(r'[a-zA-Z\s]+'), ''),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          TextSpan(
-                            text: " GiB",
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                              fontSize: 12,
-                            ),
-                          ),
-                          TextSpan(
-                            text: " / ${totalStr.replaceAll(RegExp(r'[a-zA-Z\s]+'), '')}",
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface,
-                              fontSize: 14,
-                            ),
-                          ),
-                          TextSpan(
-                            text: " GiB",
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
-                ),
-                const Gap(8),
-                Container(
-                  height: 8,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: usagePercent,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF69d9c0), Color(0xFF26a28b)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        Positioned(
-          top: 0,
-          left: 0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.2),
-              borderRadius: const BorderRadius.only(bottomRight: Radius.circular(12)),
+                ],
+              ),
             ),
-            child: IconButton(
-              icon: const Icon(Icons.sync_rounded, size: 18),
-              visualDensity: VisualDensity.compact,
-              color: theme.colorScheme.primary,
-              onPressed: () async {
-                if (profile is RemoteProfileEntity) {
-                  ref.read(updateProfileNotifierProvider(profile.id).notifier).updateProfile(profile as RemoteProfileEntity);
-                }
-                ref.read(authNotifierProvider.notifier).syncSubscription();
-              },
+            Positioned(
+              top: 0,
+              left: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  borderRadius: const BorderRadius.only(bottomRight: Radius.circular(12)),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.sync_rounded, size: 18),
+                  visualDensity: VisualDensity.compact,
+                  color: theme.colorScheme.primary,
+                  onPressed: () async {
+                    if (profile is RemoteProfileEntity) {
+                      ref.read(updateProfileNotifierProvider(profile.id).notifier).updateProfile(profile as RemoteProfileEntity);
+                    }
+                    ref.read(authNotifierProvider.notifier).syncSubscription();
+                  },
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-      ],
-    ),
-  ),
+      ),
+    );
   }
 }
