@@ -382,7 +382,7 @@ class NewTrafficSubscriptionInfo extends HookConsumerWidget {
 
     return Column(
       children: [
-        const Icon(Icons.assessment_rounded, color: Colors.blue),
+        Icon(Icons.assessment_rounded, color: Theme.of(context).colorScheme.primary),
         Text(t.components.subscriptionInfo.remainingTraffic),
         const SizedBox(height: 4),
         Row(
@@ -438,7 +438,7 @@ class NewDaySubscriptionInfo extends HookConsumerWidget {
     final remaining = remainingText(t, theme);
     return Column(
       children: [
-        const Icon(Icons.timer, color: Colors.blue),
+        Icon(Icons.timer, color: Theme.of(context).colorScheme.primary),
         Text(t.components.subscriptionInfo.remainingTime),
         const SizedBox(height: 4),
         Row(
@@ -486,7 +486,7 @@ class NewDayTrafficSubscriptionInfo extends HookConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.assessment_rounded, color: Colors.blue),
+        Icon(Icons.assessment_rounded, color: Theme.of(context).colorScheme.primary),
         Text(t.components.subscriptionInfo.remainingUsage),
         const SizedBox(height: 4),
         Text(
@@ -532,7 +532,7 @@ class NewSiteSubscriptionInfo extends HookConsumerWidget {
       onTap: () => launchUrl(Uri.parse(subInfo.webPageUrl ?? "")),
       child: Column(
         children: [
-          const Icon(FluentIcons.globe_person_24_filled, size: 24, color: Colors.blue),
+          Icon(FluentIcons.globe_person_24_filled, size: 24, color: Theme.of(context).colorScheme.primary),
           Text(t.components.subscriptionInfo.profileSite),
           const SizedBox(height: 4),
           Row(
@@ -572,7 +572,13 @@ class RemainingTrafficIndicator extends StatelessWidget {
     //     : ratio < 0.65
     //         ? const Color.fromRGBO(98, 115, 32, 1.0)
     //         : const Color.fromRGBO(139, 30, 36, 1.0);
-    return LinearProgressIndicator(value: ratio, borderRadius: BorderRadius.circular(16), minHeight: 6);
+    return LinearProgressIndicator(
+      value: ratio,
+      color: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(16),
+      minHeight: 6,
+    );
     // return HorizontalPercentIndicator(
     //   height: 6,
 

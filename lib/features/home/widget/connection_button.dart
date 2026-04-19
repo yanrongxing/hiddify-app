@@ -62,7 +62,8 @@ class ConnectionButton extends HookConsumerWidget {
     //   //   },
     //   // );
 
-    const buttonTheme = ConnectionButtonTheme.light;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonTheme = isDark ? ConnectionButtonTheme.dark : ConnectionButtonTheme.light;
 
     //   // return CircleDesignWidget(
     //   //   onTap: switch (connectionStatus) {
@@ -222,39 +223,55 @@ class _ConnectionButton extends StatelessWidget {
           button: true,
           enabled: enabled,
           label: label,
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [BoxShadow(blurRadius: 16, color: buttonColor.withValues(alpha: .5))],
-            ),
-            width: 148,
-            height: 148,
-            child: Material(
-              key: const ValueKey("home_connection_button"),
-              shape: const CircleBorder(),
-              color: Colors.white,
-              child: InkWell(
-                focusColor: Colors.grey,
-                onTap: onTap,
-                child: Padding(
-                  padding: const EdgeInsets.all(36),
-                  child: TweenAnimationBuilder(
-                    tween: ColorTween(end: buttonColor),
-                    duration: const Duration(milliseconds: 250),
-                    builder: (context, value, child) {
-                      if (useImage) {
-                        return image.image();
-                      } else {
-                        return Assets.images.logo.svg(colorFilter: ColorFilter.mode(value!, BlendMode.srcIn));
-                      }
-                    },
-                  ),
+          child: Builder(
+            builder: (context) {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              final scheme = Theme.of(context).colorScheme;
+              return Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: isDark
+                      ? [
+                          // Kinetic Ether: ambient teal underglow
+                          BoxShadow(
+                            blurRadius: 40,
+                            spreadRadius: 0,
+                            color: scheme.surfaceTint.withValues(alpha: 0.12),
+                          ),
+                        ]
+                      : [BoxShadow(blurRadius: 16, color: buttonColor.withValues(alpha: .5))],
                 ),
-              ),
-            ).animate(target: enabled ? 0 : 1).blurXY(end: 1),
+                width: 148,
+                height: 148,
+                child: Material(
+                  key: const ValueKey("home_connection_button"),
+                  shape: const CircleBorder(),
+                  color: isDark ? scheme.surfaceContainerHighest : Colors.white,
+                  child: InkWell(
+                    focusColor: isDark ? scheme.outlineVariant : Colors.grey,
+                    onTap: onTap,
+                    child: Padding(
+                      padding: const EdgeInsets.all(36),
+                      child: TweenAnimationBuilder(
+                        tween: ColorTween(end: buttonColor),
+                        duration: const Duration(milliseconds: 250),
+                        builder: (context, value, child) {
+                          if (useImage) {
+                            return image.image();
+                          } else {
+                            // The XLINK logo provides its own gradients and filters.
+                            return Assets.images.logo.svg();
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ).animate(target: enabled ? 0 : 1).blurXY(end: 1),
+              );
+            },
           ).animate(target: enabled ? 0 : 1).scaleXY(end: .88, curve: Curves.easeIn),
-        ),
+          ),
         const Gap(16),
         ExcludeSemantics(
           child: Column(

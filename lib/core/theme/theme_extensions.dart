@@ -11,10 +11,10 @@ class ConnectionButtonTheme extends ThemeExtension<ConnectionButtonTheme> {
   final Color? idleColor;
   final Color? connectedColor;
 
-  /// Light / default variant (original).
+  /// Light variant – Kinetic Aperture
   static const ConnectionButtonTheme light = ConnectionButtonTheme(
-    idleColor: Color(0xFF4a4d8b),
-    connectedColor: Color(0xFF44a334),
+    idleColor: Color(0xFFbcc9c4),      // outline-variant
+    connectedColor: Color(0xFF006858), // primary
   );
 
   /// Dark variant – teal-accented, following the Kinetic Ether palette.
@@ -92,22 +92,22 @@ class KineticEtherTheme extends ThemeExtension<KineticEtherTheme> {
     glassSigma: 24.0,
   );
 
-  // ── Light preset (neutral fallback) ──────────────────────────────────
+  // ── Light preset (The Kinetic Aperture) ──────────────────────────────
   static const KineticEtherTheme light = KineticEtherTheme(
     gradientPrimary: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Color(0xFF69d9c0), Color(0xFF26a28b)],
+      colors: [Color(0xFF006858), Color(0xFF00846f)],
     ),
     gradientSecondary: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Color(0xFFb8c3ff), Color(0xFFd0bcff)],
+      colors: [Color(0xFFbee9dc), Color(0xFF8bcbbb)], // secondary to secondary-container tint
     ),
-    ambientShadowColor: Color(0x14000000),
-    ghostBorderColor: Color(0x1A000000),
-    glassBackground: Color(0x33FFFFFF),
-    glassSigma: 16.0,
+    ambientShadowColor: Color(0x0D171d1b), // 5 % opacity of on-surface
+    ghostBorderColor: Color(0x26bcc9c4),    // 15 % opacity of outline-variant
+    glassBackground: Color(0xCCf5fbf7),     // 80 % opacity of surface
+    glassSigma: 20.0,
   );
 
   @override

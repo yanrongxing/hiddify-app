@@ -80,11 +80,8 @@ class HomePage extends HookConsumerWidget {
             fit: BoxFit.cover,
             opacity: 0.09,
             colorFilter: theme.brightness == Brightness.dark
-                ? ColorFilter.mode(Colors.white.withValues(alpha: .15), BlendMode.srcIn) //
-                : ColorFilter.mode(
-                    Colors.grey.withValues(alpha: 1),
-                    BlendMode.srcATop,
-                  ), // Apply white tint in dark mode
+                ? ColorFilter.mode(theme.colorScheme.primary.withValues(alpha: .08), BlendMode.srcIn)
+                : ColorFilter.mode(theme.colorScheme.outlineVariant.withValues(alpha: .5), BlendMode.srcIn),
           ),
         ),
         child: Stack(
@@ -162,12 +159,12 @@ class AppVersionLabel extends HookConsumerWidget {
       label: t.common.version,
       button: false,
       child: Container(
-        decoration: BoxDecoration(color: theme.colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(4)),
+        decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, borderRadius: BorderRadius.circular(4)),
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         child: Text(
           version,
           textDirection: TextDirection.ltr,
-          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSecondaryContainer),
+          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onPrimaryContainer),
         ),
       ),
     );

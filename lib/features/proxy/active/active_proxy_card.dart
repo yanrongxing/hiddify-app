@@ -44,11 +44,19 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.background.withOpacity(1),
+        color: theme.colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: theme.colorScheme.secondary.withOpacity(.21), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
+        boxShadow: theme.brightness == Brightness.dark
+            ? [
+                BoxShadow(
+                  color: theme.colorScheme.surfaceTint.withValues(alpha: 0.06),
+                  blurRadius: 40,
+                  offset: Offset.zero,
+                ),
+              ]
+            : [
+                BoxShadow(color: theme.colorScheme.secondary.withValues(alpha: .21), blurRadius: 10, offset: const Offset(0, 4)),
+              ],
       ),
       child: InkWell(
         onTap: () {
@@ -105,9 +113,9 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Icon(Icons.arrow_forward_ios, color: Colors.blue),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(Icons.arrow_forward_ios, color: theme.colorScheme.primary),
             ),
           ],
         ),
