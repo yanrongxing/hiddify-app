@@ -40,12 +40,10 @@ class SettingsPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: Navigator.of(context).canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            : null,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.goNamed('home'),
+        ),
         title: const SizedBox.shrink(),
       ),
       body: ListView(

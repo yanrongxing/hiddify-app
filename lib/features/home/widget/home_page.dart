@@ -51,9 +51,7 @@ class HomePage extends HookConsumerWidget {
         centerTitle: true,
         leading: Padding(
           padding: const EdgeInsets.all(12.0),
-          child: Assets.images.logo.svg(
-            colorFilter: ColorFilter.mode(theme.colorScheme.onSurface, BlendMode.srcIn),
-          ),
+          child: Assets.images.logo.svg(),
         ),
         title: const Text(
           "XLINK VPN",
