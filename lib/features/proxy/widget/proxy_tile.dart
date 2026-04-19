@@ -17,51 +17,212 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    
+    final isGroup = proxy.isGroup;
+    final delayStr = proxy.urlTestDelay > 65000 ? "---" : "${proxy.urlTestDelay}ms";
+    final isOffline = proxy.urlTestDelay > 65000 && proxy.urlTestDelay != 0;
 
-    return ListTile(
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      title: Text(
-        proxy.tagDisplay,
-        overflow: TextOverflow.ellipsis,
-        style: PlatformUtils.isWindows ? const TextStyle(fontFamily: FontFamily.emoji) : null,
-      ),
-      leading: IPCountryFlag(
-        countryCode: proxy.ipinfo.countryCode,
-        organization: proxy.ipinfo.org,
-        size: 40,
-        padding: const EdgeInsetsDirectional.only(end: 8),
-      ),
-      subtitle: Text.rich(
-        TextSpan(
-          text: proxy.type,
-          children: [
-            if (proxy.isGroup)
-              TextSpan(
-                text: ' (${proxy.groupSelectedTagDisplay.trim()})',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-          ],
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: Column(
-        children: [
-          if (proxy.urlTestDelay != 0)
-            Text(
-              proxy.urlTestDelay > 65000 ? "×" : proxy.urlTestDelay.toString(),
-              style: TextStyle(color: delayColor(context, proxy.urlTestDelay)),
-            ),
+    Color delayColorVal = delayColor(context, proxy.urlTestDelay);
+    if (proxy.urlTestDelay == 0) delayColorVal = scheme.onSurfaceVariant; 
 
-          if (proxy.download > 0) Text("⬩", style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
-
-      selected: selected,
-      selectedTileColor: theme.colorScheme.primaryContainer,
+    return InkWell(
       onTap: onTap,
       onLongPress: () async => await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: proxy),
-      horizontalTitleGap: 4,
+      borderRadius: BorderRadius.circular(12),
+      child: Opacity(
+        opacity: isOffline ? 0.6 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: selected ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected ? scheme.primary.withValues(alpha: 0.5) : scheme.outlineVariant.withValues(alpha: 0.15),
+            ),
+            boxShadow: selected
+                ? [BoxShadow(color: scheme.primary.withValues(alpha: 0.06), blurRadius: 40)]
+                : null,
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              if (selected)
+                Positioned(
+                  left: -16,
+                  top: -14,
+                  bottom: -14,
+                  width: 4,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [scheme.primary, scheme.primaryContainer],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    margin: const EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: selected ? null : scheme.surfaceContainerHighest,
+                      gradient: selected
+                          ? LinearGradient(
+                              colors: [scheme.primary, scheme.primaryContainer],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                      border: selected ? null : Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+                      boxShadow: selected
+                          ? [BoxShadow(color: scheme.primary.withValues(alpha: 0.3), blurRadius: 15)]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.antiAlias,
+                    child: isGroup
+                        ? Icon(
+                            Icons.speed_rounded,
+                            color: selected ? scheme.onPrimaryContainer : scheme.primary,
+                            size: 20,
+                          )
+                        : IPCountryFlag(
+                            countryCode: proxy.ipinfo.countryCode,
+                            organization: proxy.ipinfo.org,
+                            size: 40,
+                          ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                proxy.tagDisplay,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: selected ? scheme.primary : scheme.onSurface,
+                                  fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (selected) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: scheme.primary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: scheme.primary.withValues(alpha: 0.2)),
+                                ),
+                                child: Text(
+                                  "ACTIVE",
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: scheme.primary,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              proxy.type.toUpperCase(),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.0,
+                                fontSize: 10,
+                              ),
+                            ),
+                            if (proxy.isGroup) ...[
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  "(${proxy.groupSelectedTagDisplay.trim()})",
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                    fontSize: 10,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ] else if (proxy.ipinfo.countryCode.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Container(width: 4, height: 4, decoration: BoxDecoration(color: scheme.outlineVariant, shape: BoxShape.circle)),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  proxy.ipinfo.org,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                    fontSize: 10,
+                                    fontFamily: 'Manrope',
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ]
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        delayStr,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: isOffline ? scheme.onSurfaceVariant : delayColorVal,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Space Grotesk',
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: selected ? scheme.primary : Colors.transparent,
+                          border: selected ? null : Border.all(color: scheme.outlineVariant),
+                          boxShadow: selected
+                              ? [BoxShadow(color: scheme.primary.withValues(alpha: 0.4), blurRadius: 10)]
+                              : null,
+                        ),
+                        alignment: Alignment.center,
+                        child: selected
+                            ? Icon(Icons.check, size: 16, color: scheme.onPrimary)
+                            : null,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

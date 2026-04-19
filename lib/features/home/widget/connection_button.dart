@@ -12,12 +12,33 @@ import 'package:hiddify/core/widget/animated_text.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
+import 'package:hiddify/features/proxy/active/active_proxy_delay_indicator.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+class RadarBorderPainter extends CustomPainter {
+  final Color color;
+  RadarBorderPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..shader = SweepGradient(
+        colors: [color.withValues(alpha: 0.0), color],
+        stops: const [0.0, 1.0],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), size.width / 2, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant RadarBorderPainter oldDelegate) => oldDelegate.color != color;
+}
 
 // TODO: rewrite
 class ConnectionButton extends HookConsumerWidget {
@@ -116,7 +137,16 @@ class ConnectionButton extends HookConsumerWidget {
     if (delay <= 0 || delay > 65000 || connectionStatus.value != const Connected()) {
       secureLabel = "";
     }
+
+    final isConnecting = switch (connectionStatus) {
+      AsyncData(value: Connected()) when requiresReconnect == true => false,
+      AsyncData(value: Connected()) when delay <= 0 || delay >= 65000 => true,
+      AsyncData(value: Connecting()) => true,
+      _ => false,
+    };
+
     return _ConnectionButton(
+      isConnecting: isConnecting,
       onTap: switch (connectionStatus) {
         AsyncData(value: Connected()) when requiresReconnect == true => () async {
           final activeProfile = await ref.read(activeProfileProvider.future);
@@ -188,7 +218,7 @@ class ConnectionButton extends HookConsumerWidget {
   }
 }
 
-class _ConnectionButton extends StatelessWidget {
+class _ConnectionButton extends StatefulWidget {
   const _ConnectionButton({
     required this.onTap,
     required this.enabled,
@@ -199,6 +229,7 @@ class _ConnectionButton extends StatelessWidget {
     required this.newButtonColor,
     required this.animated,
     required this.secureLabel,
+    required this.isConnecting,
   });
 
   final VoidCallback onTap;
@@ -208,95 +239,158 @@ class _ConnectionButton extends StatelessWidget {
   final AssetGenImage image;
   final bool useImage;
   final String secureLabel;
-
   final Color newButtonColor;
-
   final bool animated;
+  final bool isConnecting;
+
+  @override
+  State<_ConnectionButton> createState() => _ConnectionButtonState();
+}
+
+class _ConnectionButtonState extends State<_ConnectionButton> {
+  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // CircleDesignWidget(newButtonColor: newButtonColor, onTap: onTap, animated: animated),
         Semantics(
           button: true,
-          enabled: enabled,
-          label: label,
+          enabled: widget.enabled,
+          label: widget.label,
           child: Builder(
             builder: (context) {
               final isDark = Theme.of(context).brightness == Brightness.dark;
               final scheme = Theme.of(context).colorScheme;
-              return Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: isDark
-                      ? [
-                          // Kinetic Ether: ambient teal underglow
-                          BoxShadow(
+
+              Widget buildRing(double size, double opacity, bool reverse) {
+                if (widget.isConnecting) {
+                  return SizedBox(
+                    width: size,
+                    height: size,
+                    child: CustomPaint(
+                      painter: RadarBorderPainter(scheme.primary.withValues(alpha: opacity * 3)),
+                    ),
+                  ).animate(onPlay: (c) => c.repeat()).rotate(duration: const Duration(seconds: 2), curve: Curves.linear, begin: reverse ? 1 : 0, end: reverse ? 0 : 1);
+                } else {
+                  return Container(
+                    width: size,
+                    height: size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: scheme.primary.withValues(alpha: opacity), width: 1),
+                    ),
+                  );
+                }
+              }
+
+              return Listener(
+                onPointerDown: widget.enabled ? (_) => setState(() => _isPressed = true) : null,
+                onPointerUp: widget.enabled ? (_) => setState(() => _isPressed = false) : null,
+                onPointerCancel: widget.enabled ? (_) => setState(() => _isPressed = false) : null,
+                child: AnimatedScale(
+                  scale: _isPressed ? 0.96 : 1.0,
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeInOut,
+                  child: Container(
+                    width: 320,
+                    height: 320,
+                    alignment: Alignment.center,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        buildRing(320, 0.1, false),
+                        buildRing(281.6, 0.2, true),
+                    Container(
+                      width: 256,
+                      height: 256,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: scheme.primary.withValues(alpha: 0.3), width: 1),
+                        boxShadow: [
+                        BoxShadow(
+                            color: widget.buttonColor.withValues(alpha: 0.3),
                             blurRadius: 40,
                             spreadRadius: 0,
-                            color: scheme.surfaceTint.withValues(alpha: 0.12),
                           ),
-                        ]
-                      : [BoxShadow(blurRadius: 16, color: buttonColor.withValues(alpha: .5))],
-                ),
-                width: 148,
-                height: 148,
-                child: Material(
-                  key: const ValueKey("home_connection_button"),
-                  shape: const CircleBorder(),
-                  color: isDark ? scheme.surfaceContainerHighest : Colors.white,
-                  child: InkWell(
-                    focusColor: isDark ? scheme.outlineVariant : Colors.grey,
-                    onTap: onTap,
-                    child: Padding(
-                      padding: const EdgeInsets.all(36),
-                      child: TweenAnimationBuilder(
-                        tween: ColorTween(end: buttonColor),
-                        duration: const Duration(milliseconds: 250),
-                        builder: (context, value, child) {
-                          if (useImage) {
-                            return image.image();
-                          } else {
-                            // The XLINK logo provides its own gradients and filters.
-                            return Assets.images.logo.svg();
-                          }
-                        },
+                        ],
+                        color: isDark ? scheme.surfaceContainerLow : Colors.white,
                       ),
-                    ),
-                  ),
-                ).animate(target: enabled ? 0 : 1).blurXY(end: 1),
-              );
-            },
-          ).animate(target: enabled ? 0 : 1).scaleXY(end: .88, curve: Curves.easeIn),
-          ),
-        const Gap(16),
-        ExcludeSemantics(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedText(label, style: Theme.of(context).textTheme.titleMedium),
-              if (secureLabel.isNotEmpty) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // const Gap(8),
-                    Icon(FontAwesomeIcons.shieldHalved, size: 16, color: Theme.of(context).colorScheme.secondary),
-                    const Gap(4),
-                    Text(
-                      secureLabel,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                      clipBehavior: Clip.antiAlias,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: widget.onTap,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Internal glass effect gradient
+                              Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        scheme.primary.withValues(alpha: 0.05),
+                                        Colors.transparent,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.power_settings_new_rounded,
+                                    size: 48,
+                                    color: widget.buttonColor,
+                                    shadows: [Shadow(color: widget.buttonColor.withValues(alpha: 0.8), blurRadius: 15)],
+                                  ),
+                                  const Gap(16),
+                                  AnimatedText(
+                                    widget.label.toUpperCase(),
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                      color: widget.buttonColor,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 4.0, // tracking-widest
+                                      fontSize: 24, // text-2xl
+                                      fontFamily: 'Space Grotesk',
+                                    ),
+                                  ),
+                                  const Gap(8),
+                                  const ActiveProxyDelayIndicator(),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ],
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+        if (widget.secureLabel.isNotEmpty) ...[
+          const Gap(16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(FontAwesomeIcons.shieldHalved, size: 16, color: Theme.of(context).colorScheme.secondary),
+              const Gap(4),
+              Text(
+                widget.secureLabel,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),
+              ),
             ],
           ),
-        ),
+        ],
       ],
     );
   }

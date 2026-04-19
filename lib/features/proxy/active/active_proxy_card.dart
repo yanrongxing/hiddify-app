@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
@@ -41,83 +42,183 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
         boxShadow: theme.brightness == Brightness.dark
-            ? [
-                BoxShadow(
-                  color: theme.colorScheme.surfaceTint.withValues(alpha: 0.06),
-                  blurRadius: 40,
-                  offset: Offset.zero,
-                ),
-              ]
-            : [
-                BoxShadow(color: theme.colorScheme.secondary.withValues(alpha: .21), blurRadius: 10, offset: const Offset(0, 4)),
-              ],
+            ? [BoxShadow(color: theme.colorScheme.surfaceTint.withValues(alpha: 0.05), blurRadius: 40, offset: Offset.zero)]
+            : [BoxShadow(color: theme.colorScheme.secondary.withValues(alpha: .15), blurRadius: 10, offset: const Offset(0, 4))],
       ),
-      child: InkWell(
-        onTap: () {
-          context.goNamed('proxies');
-        },
-        child: Row(
-          children: [
-            InkWell(
-              onTap: () async {
-                await handleUrlTest();
-                await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: activeProxy);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: IPCountryFlag(
-                  countryCode: activeProxy.ipinfo.countryCode,
-                  organization: activeProxy.ipinfo.org,
-                  size: 48,
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            context.goNamed('proxies');
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                top: -60,
+                right: -60,
+                child: Container(
+                  width: 128,
+                  height: 128,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Positioned(
+                top: -60,
+                right: -60,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Container(width: 128, height: 128, color: Colors.transparent),
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Semantics(
-                    label: t.pages.proxies.activeProxy,
-                    child: Text(
-                      // getRealOutboundTag(activeProxy),
-                      activeProxy.tagDisplay,
-                      style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "CURRENT NODE",
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                letterSpacing: 2.0,
+                                fontSize: 10,
+                                fontFamily: 'Manrope',
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              getRealOutboundTag(activeProxy),
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                fontFamily: 'Space Grotesk',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () async {
+                          await handleUrlTest();
+                          await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: activeProxy);
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainer,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          alignment: Alignment.center,
+                          child: IPCountryFlag(
+                            countryCode: activeProxy.ipinfo.countryCode,
+                            organization: activeProxy.ipinfo.org,
+                            size: 32, // The inner icon size, constrained by container
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    height: 1,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.outlineVariant.withValues(alpha: 0.0),
+                          theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                          theme.colorScheme.outlineVariant.withValues(alpha: 0.0),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (activeProxy.ipinfo.ip.isNotEmpty)
-                        IPText(ip: activeProxy.ipinfo.ip, onLongPress: handleUrlTest, constrained: true)
-                      else
-                        UnknownIPText(text: t.pages.proxies.unknownIp, onTap: handleUrlTest),
-                      const Spacer(),
-                      Text(
-                        // getRealOutboundTag(activeProxy),
-                        activeProxy.type,
-                        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.route_rounded, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 8),
+                                if (activeProxy.ipinfo.ip.isNotEmpty)
+                                  DefaultTextStyle(
+                                    style: theme.textTheme.bodySmall!.copyWith(
+                                      color: theme.colorScheme.onSurface,
+                                      fontSize: 14,
+                                    ),
+                                    child: IPText(ip: activeProxy.ipinfo.ip, onLongPress: handleUrlTest, constrained: true),
+                                  )
+                                else
+                                  DefaultTextStyle(
+                                    style: theme.textTheme.bodySmall!.copyWith(
+                                      color: theme.colorScheme.onSurface,
+                                      fontSize: 14,
+                                    ),
+                                    child: UnknownIPText(text: t.pages.proxies.unknownIp, onTap: handleUrlTest),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(Icons.alt_route_rounded, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 8),
+                                Text(
+                                  activeProxy.type,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontSize: 12,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: theme.colorScheme.surface,
+                          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+                        ),
+                        child: Icon(Icons.swap_horiz_rounded, color: theme.colorScheme.primary, size: 20),
                       ),
                     ],
                   ),
                 ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Icon(Icons.arrow_forward_ios, color: theme.colorScheme.primary),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

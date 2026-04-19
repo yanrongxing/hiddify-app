@@ -52,11 +52,13 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                   final width = constraints.maxWidth;
                   final crossAxisCount = PlatformUtils.isMobile && width < 600 ? 1 : max(1, (width / 268).floor());
                   return GridView.builder(
-                    padding: const EdgeInsets.only(bottom: 86),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16).copyWith(bottom: 120),
                     itemCount: group.items.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
-                      mainAxisExtent: 72,
+                      mainAxisExtent: 76,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
                     ),
                     itemBuilder: (context, index) {
                       final proxy = group.items[index];
@@ -64,10 +66,41 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                         proxy,
                         selected: group.selected == proxy.tag,
                         onTap: () async {
-                          await ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(group.tag, proxy.tag);
-                          // if (selectActiveProxyMutation.state.isInProgress) return;
-                          // selectActiveProxyMutation.setFuture(
-                          // );
+                          if (group.selected == proxy.tag) return;
+
+                          final rootNavigator = Navigator.of(context, rootNavigator: true);
+
+                          showDialog(
+                            context: context,
+                            useRootNavigator: true,
+                            barrierDismissible: false,
+                            barrierColor: Colors.black54,
+                            builder: (BuildContext context) {
+                              return Center(
+                                child: Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.2),
+                                        blurRadius: 20,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const CircularProgressIndicator(),
+                                ),
+                              );
+                            },
+                          );
+
+                          try {
+                            await ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(group.tag, proxy.tag);
+                            await Future.delayed(const Duration(seconds: 2));
+                          } finally {
+                            rootNavigator.pop();
+                          }
                         },
                       );
                     },

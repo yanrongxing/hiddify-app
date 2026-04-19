@@ -35,12 +35,17 @@ class ActiveProxyDelayIndicator extends HookConsumerWidget with InfraLogger {
           }
         },
         borderRadius: BorderRadius.circular(24),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(FluentIcons.wifi_1_24_regular),
+              Icon(Icons.speed_rounded, size: 14, color: theme.colorScheme.primary),
               const Gap(8),
               if (delay > 0)
                 Text.rich(
@@ -50,17 +55,22 @@ class ActiveProxyDelayIndicator extends HookConsumerWidget with InfraLogger {
                       if (timeout)
                         TextSpan(
                           text: t.common.timeout,
-                          style: theme.textTheme.titleMedium?.copyWith(
+                          style: theme.textTheme.labelSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.error,
+                            letterSpacing: 1.5,
+                            fontFamily: 'Manrope',
                           ),
                         )
                       else ...[
                         TextSpan(
-                          text: delay.toString(),
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          text: "$delay ms ping",
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                            letterSpacing: 1.5,
+                            fontFamily: 'Manrope',
+                          ),
                         ),
-                        const TextSpan(text: " ms"),
                       ],
                     ],
                   ),
