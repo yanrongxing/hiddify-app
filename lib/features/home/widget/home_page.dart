@@ -340,6 +340,32 @@ class HomeDataCard extends HookConsumerWidget {
                       return;
                     }
                     final p = profile;
+                    if (p == null) {
+                      final shouldSubscribe = await showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text('无可用订阅'),
+                            content: const Text('您尚未订阅或订阅已过期，请前往购买订阅套餐。'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('取消'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: const Text('前往订阅'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      if (shouldSubscribe == true && context.mounted) {
+                        UriUtils.tryLaunch(Uri.parse('https://47.79.38.161/#/plan'));
+                      }
+                      return;
+                    }
+                    
                     if (p is RemoteProfileEntity) {
                       ref.read(updateProfileNotifierProvider(p.id).notifier).updateProfile(p);
                     }
