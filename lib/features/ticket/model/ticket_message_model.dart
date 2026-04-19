@@ -5,8 +5,8 @@ part 'ticket_message_model.g.dart';
 @freezed
 class TicketMessageModel with _$TicketMessageModel {
   const factory TicketMessageModel({
-    required int id,
-    @JsonKey(name: 'user_id') required int userId,
+    int? id,
+    @JsonKey(name: 'user_id') int? userId,
     required String message,
     @JsonKey(name: 'created_at') required int createdAt,
     @JsonKey(name: 'is_me') @Default(false) bool isMe,
