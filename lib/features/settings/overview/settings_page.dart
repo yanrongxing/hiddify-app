@@ -42,16 +42,8 @@ class SettingsPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.goNamed('home'),
-        ),
-        title: Text(
-          "个人中心",
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.goNamed('home')),
+        title: Text("个人中心", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -129,9 +121,9 @@ class SettingsPage extends HookConsumerWidget {
                               ),
                               const Gap(8),
                               Text(
-                              isAuthenticated
-                                  ? (user?.planName ?? '\u514d\u8d39\u7528\u6237')
-                                  : 'Guest / \u8a2a\u5ba2',
+                                isAuthenticated
+                                    ? (user?.planName ?? '\u514d\u8d39\u7528\u6237')
+                                    : 'Guest / \u8a2a\u5ba2',
                                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                             ],
@@ -174,14 +166,13 @@ class SettingsPage extends HookConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                '我的订阅',
-                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                              ),
+                              Text('我的订阅', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                               if (user.expiredAt != null)
                                 Text(
                                   '到期: ${DateTime.fromMillisecondsSinceEpoch(user.expiredAt! * 1000).toString().split(' ')[0]}',
-                                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                  style: theme.textTheme.labelMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                             ],
                           ),
@@ -204,6 +195,7 @@ class SettingsPage extends HookConsumerWidget {
                                       return '${(bytes / mb).toStringAsFixed(1)} MB';
                                     }
                                   }
+
                                   return Text(
                                     '${format(user.u + user.d)} / ${format(user.transferEnable)}',
                                     style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
