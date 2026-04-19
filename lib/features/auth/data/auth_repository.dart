@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:hiddify/features/auth/model/user_model.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 
@@ -22,7 +24,28 @@ class AuthRepository with InfraLogger {
                   'Accept': 'application/json',
                 },
               ),
-            );
+            ) {
+    // Bypass SSL verification for IP-based or invalid certs.
+    _dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        final client = HttpClient();
+        client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+        return client;
+      },
+    );
+
+    _dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestHeader: true,
+        requestBody: true,
+        responseHeader: true,
+        responseBody: true,
+        error: true,
+        logPrint: (obj) => loggy.debug(obj.toString()),
+      ),
+    );
+  }
 
   final String baseUrl;
   final Dio _dio;
