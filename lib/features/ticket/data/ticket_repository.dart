@@ -21,7 +21,8 @@ class TicketRepository with InfraLogger {
   Future<List<TicketMessageModel>> fetchTicketMessages(int ticketId) async {
     try {
       final response = await _dio.get('/api/v1/user/ticket/fetch', queryParameters: {'id': ticketId});
-      final dataList = response.data['data'] as List? ?? [];
+      final dataObj = response.data['data'] as Map<String, dynamic>? ?? {};
+      final dataList = dataObj['message'] as List? ?? [];
       return dataList.map((e) => TicketMessageModel.fromJson(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       loggy.error('Fetch ticket messages failed', e);
