@@ -134,7 +134,57 @@ class SettingsPage extends HookConsumerWidget {
                       ),
                     ),
                   )
-                else
+                else ...[
+                  if (user != null && user.planId != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '我的订阅',
+                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              if (user.expiredAt != null)
+                                Text(
+                                  '到期: ${DateTime.fromMillisecondsSinceEpoch(user.expiredAt! * 1000).toString().split(' ')[0]}',
+                                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                ),
+                            ],
+                          ),
+                          const Gap(12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '流量使用',
+                                style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                              ),
+                              Text(
+                                '${((user.u + user.d) / (1024 * 1024 * 1024)).toStringAsFixed(2)} / ${(user.transferEnable / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB',
+                                style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const Gap(8),
+                          LinearProgressIndicator(
+                            value: user.transferEnable > 0 ? (user.u + user.d) / user.transferEnable : 0,
+                            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(16),
+                  ],
                   Container(
                     width: double.infinity,
                     height: 48,
@@ -153,7 +203,9 @@ class SettingsPage extends HookConsumerWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          // Subscribe action
+                          if (FeatureFlags.enableSubscriptionShop) {
+                            context.pushNamed('shop');
+                          }
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Center(
@@ -163,7 +215,7 @@ class SettingsPage extends HookConsumerWidget {
                               Icon(Icons.bolt_rounded, color: theme.colorScheme.onPrimaryContainer),
                               const Gap(8),
                               Text(
-                                '立即訂閱',
+                                user?.planId != null ? '续费 / 升级' : '立即訂閱',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   color: theme.colorScheme.onPrimaryContainer,
                                   fontFamily: 'Space Grotesk',
@@ -177,6 +229,7 @@ class SettingsPage extends HookConsumerWidget {
                       ),
                     ),
                   ),
+                ],
               ],
             ),
           ),
@@ -185,6 +238,18 @@ class SettingsPage extends HookConsumerWidget {
           // Group 1: Utilities
           _MenuGroup(
             children: [
+              if (FeatureFlags.enableSubscriptionShop)
+                _MenuItem(
+                  icon: Icons.storefront_rounded,
+                  title: '订阅商店',
+                  onTap: () {
+                    if (ref.read(isAuthenticatedProvider)) {
+                      context.pushNamed('shop');
+                    } else {
+                      context.push('/login');
+                    }
+                  },
+                ),
               _MenuItem(icon: Icons.qr_code_scanner_rounded, title: '掃描二維碼', onTap: () {}),
               _MenuItem(icon: Icons.share_rounded, title: '分享', onTap: () {}),
               _MenuItem(icon: Icons.local_activity_rounded, title: '卡券', onTap: () {}, showBorder: false),
