@@ -26,196 +26,409 @@ enum ConfigOptionSection {
 }
 
 class SettingsPage extends HookConsumerWidget {
-  SettingsPage({super.key, String? section})
-    : section = section != null ? ConfigOptionSection.values.byName(section) : null;
-
-  final ConfigOptionSection? section;
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
-    // final scrollController = useScrollController();
+    final theme = Theme.of(context);
+    final authState = ref.watch(authNotifierProvider);
 
-    // useMemoized(
-    //   () {
-    //     if (section != null) {
-    //       WidgetsBinding.instance.addPostFrameCallback(
-    //         (_) {
-    //           final box = section!.key.currentContext?.findRenderObject() as RenderBox?;
-
-    //           final offset = box?.localToGlobal(Offset.zero);
-    //           if (offset == null) return;
-    //           final height = scrollController.offset + offset.dy - MediaQueryData.fromView(View.of(context)).padding.top - kToolbarHeight;
-    //           scrollController.animateTo(
-    //             height,
-    //             duration: const Duration(milliseconds: 500),
-    //             curve: Curves.decelerate,
-    //           );
-    //         },
-    //       );
-    //     }
-    //   },
-    // );
+    final isAuthenticated = authState is Authenticated;
+    final user = isAuthenticated ? authState.user : null;
+    final email = user?.email ?? 'Guest User';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.pages.settings.title),
-        actions: [
-          MenuAnchor(
-            menuChildren: <Widget>[
-              SubmenuButton(
-                menuChildren: <Widget>[
-                  MenuItemButton(
-                    onPressed: () async => await ref
-                        .read(dialogNotifierProvider.notifier)
-                        .showConfirmation(
-                          title: t.common.msg.import.confirm,
-                          message: t.dialogs.confirmation.settings.import.msg,
-                        )
-                        .then((shouldImport) async {
-                          if (shouldImport) {
-                            await ref.read(configOptionNotifierProvider.notifier).importFromClipboard();
-                          }
-                        }),
-                    child: Text(t.pages.settings.options.import.clipboard),
-                  ),
-                  MenuItemButton(
-                    onPressed: () async => await ref
-                        .read(dialogNotifierProvider.notifier)
-                        .showConfirmation(
-                          title: t.common.msg.import.confirm,
-                          message: t.dialogs.confirmation.settings.import.msg,
-                        )
-                        .then((shouldImport) async {
-                          if (shouldImport) {
-                            await ref.read(configOptionNotifierProvider.notifier).importFromJsonFile();
-                          }
-                        }),
-                    child: Text(t.pages.settings.options.import.file),
-                  ),
-                ],
-                child: Text(t.common.import),
-              ),
-              SubmenuButton(
-                menuChildren: <Widget>[
-                  MenuItemButton(
-                    onPressed: () async => await ref.read(configOptionNotifierProvider.notifier).exportJsonClipboard(),
-                    child: Text(t.pages.settings.options.export.anonymousToClipboard),
-                  ),
-                  MenuItemButton(
-                    onPressed: () async => await ref.read(configOptionNotifierProvider.notifier).exportJsonFile(),
-                    child: Text(t.pages.settings.options.export.anonymousToFile),
-                  ),
-                  const PopupMenuDivider(),
-                  MenuItemButton(
-                    onPressed: () async => await ref
-                        .read(configOptionNotifierProvider.notifier)
-                        .exportJsonClipboard(excludePrivate: false),
-                    child: Text(t.pages.settings.options.export.allToClipboard),
-                  ),
-                  MenuItemButton(
-                    onPressed: () async =>
-                        await ref.read(configOptionNotifierProvider.notifier).exportJsonFile(excludePrivate: false),
-                    child: Text(t.pages.settings.options.export.allToFile),
-                  ),
-                ],
-                child: Text(t.common.export),
-              ),
-              const PopupMenuDivider(),
-              MenuItemButton(
-                child: Text(t.pages.settings.options.reset),
-                onPressed: () async => await ref.read(configOptionNotifierProvider.notifier).resetOption(),
-              ),
-            ],
-            builder: (context, controller, child) => IconButton(
-              onPressed: () {
-                if (controller.isOpen) {
-                  controller.close();
-                } else {
-                  controller.open();
-                }
-              },
-              icon: const Icon(Icons.more_vert_rounded),
-            ),
+        title: Text(
+          "SECURITY TERMINAL",
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontFamily: 'Space Grotesk',
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
           ),
-          const Gap(8),
-        ],
+        ),
+        centerTitle: true,
       ),
       body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 16, bottom: 84),
         children: [
-          // TipCard(message: t.settings.experimentalMsg),
-          SettingsSection(
-            title: t.pages.settings.general.title,
-            icon: Icons.layers_rounded,
-            routeName: 'general',
+          // User Profile Card
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2), width: 2),
+                        boxShadow: [BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.1), blurRadius: 20)],
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(Icons.account_circle, size: 40, color: theme.colorScheme.primary),
+                    ),
+                    const Gap(16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            email,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontFamily: 'Space Grotesk',
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const Gap(4),
+                          Row(
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isAuthenticated ? theme.colorScheme.primary : theme.colorScheme.outline,
+                                ),
+                              ),
+                              const Gap(8),
+                              Text(
+                                isAuthenticated ? 'Premium Member / 高級會員' : 'Guest / 訪客',
+                                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(24),
+                if (!isAuthenticated)
+                  FilledButton.icon(
+                    onPressed: () => context.go('/login'),
+                    icon: const Icon(Icons.login_rounded),
+                    label: const Text('登入 / 註冊'),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 56),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Space Grotesk',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  )
+                else
+                  Container(
+                    width: double.infinity,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(colors: [theme.colorScheme.primary, theme.colorScheme.primaryContainer]),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          // Subscribe action
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.bolt_rounded, color: theme.colorScheme.onPrimaryContainer),
+                              const Gap(8),
+                              Text(
+                                '立即訂閱',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                  fontFamily: 'Space Grotesk',
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-          if (!FeatureFlags.hideAdvancedSettings) ...[
-            SettingsSection(
-              title: t.pages.settings.routing.title,
-              icon: Icons.route_rounded,
-              routeName: 'routeOptions',
-            ),
-            SettingsSection(
-              title: t.pages.settings.dns.title,
-              icon: Icons.dns_rounded,
-              routeName: 'dnsOptions',
-            ),
-            SettingsSection(
-              title: t.pages.settings.inbound.title,
-              icon: Icons.input_rounded,
-              routeName: 'inboundOptions',
-            ),
-            SettingsSection(
-              title: t.pages.settings.tlsTricks.title,
-              icon: Icons.content_cut_rounded,
-              routeName: 'tlsTricks',
-            ),
-            SettingsSection(
-              title: t.pages.settings.warp.title,
-              icon: Icons.cloud_rounded,
-              routeName: 'warpOptions',
-            ),
-          ],
-          if (PlatformUtils.isIOS)
-            Material(
-              child: ListTile(
-                title: Text(t.pages.settings.resetTunnel),
-                leading: const Icon(Icons.autorenew_rounded),
-                onTap: () async {
-                  await ref.read(resetTunnelNotifierProvider.notifier).run();
+          const Gap(24),
+
+          // Group 1: Utilities
+          _MenuGroup(
+            children: [
+              _MenuItem(icon: Icons.qr_code_scanner_rounded, title: '掃描二維碼', onTap: () {}),
+              _MenuItem(icon: Icons.share_rounded, title: '分享', onTap: () {}),
+              _MenuItem(icon: Icons.local_activity_rounded, title: '卡券', onTap: () {}, showBorder: false),
+            ],
+          ),
+          const Gap(16),
+
+          // Group 2: Support & Info
+          _MenuGroup(
+            children: [
+              _MenuItem(
+                icon: Icons.layers_rounded,
+                title: t.pages.settings.general.title,
+                onTap: () => context.go(context.namedLocation('general')),
+              ),
+              _MenuItem(
+                icon: Icons.settings_rounded,
+                title: '高級設定 (Advanced Settings)',
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AdvancedSettingsPage()));
                 },
               ),
-            ),
-          if (Breakpoint(context).isMobile()) ...[
-            SettingsSection(
-              title: t.pages.logs.title,
-              icon: Icons.description_rounded,
-              routeName: 'logs',
-            ),
-            SettingsSection(
-              title: t.pages.about.title,
-              icon: Icons.info_rounded,
-              routeName: 'about',
-            ),
-          ],
-          // ── Xlink: Auth actions ──
-          if (FeatureFlags.enableXlinkAuth) ...[
-            const Divider(),
-            if (ref.watch(authNotifierProvider) is Authenticated)
-              ListTile(
-                leading: const Icon(Icons.logout_rounded, color: Colors.red),
-                title: const Text('退出登录', style: TextStyle(color: Colors.red)),
-                onTap: () async {
-                  await ref.read(authNotifierProvider.notifier).logout();
-                },
-              )
-            else
-              ListTile(
-                leading: Icon(Icons.login_rounded, color: Theme.of(context).colorScheme.primary),
-                title: const Text('登录 / 注册'),
-                onTap: () => context.go('/login'),
+              _MenuItem(icon: Icons.help_outline_rounded, title: '幫助中心', onTap: () {}),
+              _MenuItem(icon: Icons.support_agent_rounded, title: '在線客服', onTap: () {}),
+              _MenuItem(icon: Icons.alternate_email_rounded, title: '官方「X」帳號', onTap: () {}),
+              _MenuItem(
+                icon: Icons.info_outline_rounded,
+                title: '關於 App',
+                onTap: () => context.go(context.namedLocation('about')),
+                showBorder: false,
               ),
-          ],
+            ],
+          ),
+          const Gap(24),
+
+          // Group 3: Logout
+          if (isAuthenticated)
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 8)),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    await ref.read(authNotifierProvider.notifier).logout();
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Text(
+                        '退出登錄',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.error,
+                          fontFamily: 'Space Grotesk',
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MenuGroup extends StatelessWidget {
+  const _MenuGroup({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 8))],
+      ),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _MenuItem extends StatelessWidget {
+  const _MenuItem({required this.icon, required this.title, required this.onTap, this.showBorder = true, this.color});
+
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final bool showBorder;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: showBorder
+                ? Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.1)))
+                : null,
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: color ?? theme.colorScheme.primary, size: 24),
+              const Gap(12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.bodyLarge?.copyWith(color: color ?? theme.colorScheme.onSurface),
+                ),
+              ),
+              if (color == null)
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  size: 20,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AdvancedSettingsPage extends HookConsumerWidget {
+  const AdvancedSettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(translationsProvider).requireValue;
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          t.pages.settings.title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontFamily: 'Space Grotesk',
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        children: [
+          // Configuration Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Text(
+              'CONFIGURATION',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          // Configuration Group
+          _MenuGroup(
+            children: [
+              if (!FeatureFlags.hideAdvancedSettings) ...[
+                _MenuItem(
+                  icon: Icons.route_rounded,
+                  title: t.pages.settings.routing.title,
+                  onTap: () => context.go(context.namedLocation('routeOptions')),
+                ),
+                _MenuItem(
+                  icon: Icons.dns_rounded,
+                  title: t.pages.settings.dns.title,
+                  onTap: () => context.go(context.namedLocation('dnsOptions')),
+                ),
+                _MenuItem(
+                  icon: Icons.input_rounded,
+                  title: t.pages.settings.inbound.title,
+                  onTap: () => context.go(context.namedLocation('inboundOptions')),
+                ),
+                _MenuItem(
+                  icon: Icons.content_cut_rounded,
+                  title: t.pages.settings.tlsTricks.title,
+                  onTap: () => context.go(context.namedLocation('tlsTricks')),
+                ),
+                _MenuItem(
+                  icon: Icons.cloud_rounded,
+                  title: t.pages.settings.warp.title,
+                  onTap: () => context.go(context.namedLocation('warpOptions')),
+                  showBorder: false,
+                ),
+              ],
+            ],
+          ),
+          const Gap(24),
+
+          // System Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Text(
+              'SYSTEM',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          // System Group
+          _MenuGroup(
+            children: [
+              if (Breakpoint(context).isMobile()) ...[
+                _MenuItem(
+                  icon: Icons.receipt_long_rounded,
+                  title: t.pages.logs.title,
+                  onTap: () => context.go(context.namedLocation('logs')),
+                ),
+              ],
+              _MenuItem(
+                icon: Icons.warning_amber_rounded,
+                title: t.pages.settings.resetTunnel,
+                onTap: () async {
+                  await ref.read(configOptionNotifierProvider.notifier).resetOption();
+                },
+                showBorder: false,
+                color: theme.colorScheme.error,
+              ),
+            ],
+          ),
         ],
       ),
     );

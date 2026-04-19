@@ -196,7 +196,7 @@ class HomeDataCard extends HookConsumerWidget {
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Space Grotesk',
-                            fontSize: 18,
+                            fontSize: 13,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
