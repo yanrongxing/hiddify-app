@@ -170,9 +170,22 @@ class SettingsPage extends HookConsumerWidget {
                                 '流量使用',
                                 style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
-                              Text(
-                                '${((user.u + user.d) / (1024 * 1024 * 1024)).toStringAsFixed(2)} / ${(user.transferEnable / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB',
-                                style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+                              Builder(
+                                builder: (context) {
+                                  String format(int bytes) {
+                                    const gb = 1024 * 1024 * 1024;
+                                    const mb = 1024 * 1024;
+                                    if (bytes >= gb) {
+                                      return '${(bytes / gb).toStringAsFixed(2)} GB';
+                                    } else {
+                                      return '${(bytes / mb).toStringAsFixed(1)} MB';
+                                    }
+                                  }
+                                  return Text(
+                                    '${format(user.u + user.d)} / ${format(user.transferEnable)}',
+                                    style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+                                  );
+                                },
                               ),
                             ],
                           ),

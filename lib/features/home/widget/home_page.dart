@@ -224,9 +224,22 @@ class HomeDataCard extends HookConsumerWidget {
     final double usagePercent = totalBytes > 0
         ? (usedBytes / totalBytes).clamp(0.0, 1.0)
         : (subInfo?.ratio ?? 0.0);
-    String bytesToGB(int b) => (b / (1024 * 1024 * 1024)).toStringAsFixed(2);
-    final consumedStr = hasApiTraffic ? bytesToGB(usedBytes) : (subInfo?.consumption.sizeGB() ?? '0.0');
-    final totalStr = hasApiTraffic ? bytesToGB(totalBytes) : (subInfo?.total.sizeGB() ?? '0.0');
+    // Smart formatter: < 1 GB → show in MB, otherwise GB
+    (String value, String unit) formatBytes(int bytes) {
+      const gb = 1024 * 1024 * 1024;
+      const mb = 1024 * 1024;
+      if (bytes >= gb) {
+        return ((bytes / gb).toStringAsFixed(2), 'GB');
+      } else {
+        return ((bytes / mb).toStringAsFixed(1), 'MB');
+      }
+    }
+    final (consumedVal, consumedUnit) = hasApiTraffic
+        ? formatBytes(usedBytes)
+        : (subInfo?.consumption.sizeGB() ?? '0.0', 'GB');
+    final (totalVal, totalUnit) = hasApiTraffic
+        ? formatBytes(totalBytes)
+        : (subInfo?.total.sizeGB() ?? '0.0', 'GB');
 
     return Container(
       width: double.infinity,
@@ -313,37 +326,37 @@ class HomeDataCard extends HookConsumerWidget {
                         TextSpan(
                           children: [
                             TextSpan(
-                              text: consumedStr.replaceAll(RegExp(r'[a-zA-Z\s]+'), ''),
+                              text: consumedVal,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurface,
                                 fontWeight: FontWeight.w500,
-                                  fontSize: 14,
-                                ),
+                                fontSize: 14,
                               ),
-                              TextSpan(
-                                text: " GiB",
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
+                            ),
+                            TextSpan(
+                              text: " $consumedUnit",
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                fontSize: 12,
                               ),
-                              TextSpan(
-                                text: " / ${totalStr.replaceAll(RegExp(r'[a-zA-Z\s]+'), '')}",
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface,
-                                  fontSize: 14,
-                                ),
+                            ),
+                            TextSpan(
+                              text: " / $totalVal",
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                                fontSize: 14,
                               ),
-                              TextSpan(
-                                text: " GiB",
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
+                            ),
+                            TextSpan(
+                              text: " $totalUnit",
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                fontSize: 12,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                      ),
                       ],
                     ),
                     const Gap(8),
