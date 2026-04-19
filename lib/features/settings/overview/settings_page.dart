@@ -303,7 +303,11 @@ class SettingsPage extends HookConsumerWidget {
                 },
               ),
               _MenuItem(icon: Icons.help_outline_rounded, title: '幫助中心', onTap: () {}),
-              _MenuItem(icon: Icons.support_agent_rounded, title: '在線客服', onTap: () {}),
+              _MenuItem(
+                icon: Icons.support_agent_rounded,
+                title: '在線客服',
+                onTap: () => context.go(context.namedLocation('support')),
+              ),
               _MenuItem(icon: Icons.alternate_email_rounded, title: '官方「X」帳號', onTap: () {}),
               _MenuItem(
                 icon: Icons.info_outline_rounded,
@@ -462,6 +466,11 @@ class AdvancedSettingsPage extends HookConsumerWidget {
           _MenuGroup(
             children: [
               if (!FeatureFlags.hideAdvancedSettings) ...[
+                _MenuItem(
+                  icon: Icons.data_usage_rounded,
+                  title: '流量记录 (Traffic Records)',
+                  onTap: () => context.go(context.namedLocation('trafficRecords')),
+                ),
                 _MenuItem(
                   icon: Icons.route_rounded,
                   title: t.pages.settings.routing.title,

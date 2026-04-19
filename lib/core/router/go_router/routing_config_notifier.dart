@@ -29,6 +29,10 @@ import 'package:hiddify/features/settings/overview/settings_page.dart';
 import 'package:hiddify/features/subscription/widget/checkout_page.dart';
 import 'package:hiddify/features/subscription/widget/order_detail_page.dart';
 import 'package:hiddify/features/subscription/widget/shop_page.dart';
+import 'package:hiddify/features/traffic/widget/traffic_records_page.dart';
+import 'package:hiddify/features/ticket/widget/support_page.dart';
+import 'package:hiddify/features/ticket/widget/ticket_center_page.dart';
+import 'package:hiddify/features/ticket/widget/ticket_detail_page.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -214,6 +218,30 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                         ),
                       ),
                     ],
+                    GoRoute(
+                      name: 'trafficRecords',
+                      path: '/traffic-records',
+                      pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const TrafficRecordsPage()),
+                    ),
+                    GoRoute(
+                      name: 'support',
+                      path: '/support',
+                      pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const SupportPage()),
+                    ),
+                    GoRoute(
+                      name: 'ticketCenter',
+                      path: '/ticket-center',
+                      pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const TicketCenterPage()),
+                    ),
+                    GoRoute(
+                      name: 'ticketDetail',
+                      path: '/ticket-detail/:ticketId',
+                      pageBuilder: (_, state) => customTransition(
+                        TransitionType.slide,
+                        state.pageKey,
+                        TicketDetailPage(ticketId: int.parse(state.pathParameters['ticketId']!)),
+                      ),
+                    ),
                     if (!FeatureFlags.hideAdvancedSettings)
                       GoRoute(
                         name: 'routeOptions',
