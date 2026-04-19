@@ -33,6 +33,7 @@ import 'package:hiddify/features/traffic/widget/traffic_records_page.dart';
 import 'package:hiddify/features/ticket/widget/support_page.dart';
 import 'package:hiddify/features/ticket/widget/ticket_center_page.dart';
 import 'package:hiddify/features/ticket/widget/ticket_detail_page.dart';
+import 'package:hiddify/features/ticket/widget/in_app_browser_page.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -241,6 +242,15 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                         state.pageKey,
                         TicketDetailPage(ticketId: int.parse(state.pathParameters['ticketId']!)),
                       ),
+                    ),
+                    GoRoute(
+                      name: 'inAppBrowser',
+                      path: '/in-app-browser',
+                      pageBuilder: (_, state) {
+                        final url = state.uri.queryParameters['url']!;
+                        final title = state.uri.queryParameters['title'] ?? 'Browser';
+                        return customTransition(TransitionType.slide, state.pageKey, InAppBrowserPage(url: url, title: title));
+                      },
                     ),
                     if (!FeatureFlags.hideAdvancedSettings)
                       GoRoute(
