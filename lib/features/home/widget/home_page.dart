@@ -214,11 +214,19 @@ class HomeDataCard extends HookConsumerWidget {
 
     // Plan name: prefer auth user's plan name (from API), fallback to profile sub info
     final plan = authUser?.planName ?? (subInfo != null ? '订阅套餐' : '暂无套餐');
-    final daysLeft = subInfo != null && !subInfo.isExpired ? subInfo.remaining.inDays : 0;
-    final usagePercent = subInfo != null ? subInfo.ratio : 0.0;
+    final daysLeft = authUser?.expiredAt != null
+        ? (DateTime.fromMillisecondsSinceEpoch(authUser!.expiredAt! * 1000).difference(DateTime.now()).inDays).clamp(0, 9999)
+        : (subInfo != null && !subInfo.isExpired ? subInfo.remaining.inDays : 0);
 
-    final consumedStr = subInfo != null ? subInfo.consumption.sizeGB() : "0.0";
-    final totalStr = subInfo != null ? subInfo.total.sizeGB() : "0.0";
+    final bool hasApiTraffic = authUser != null && authUser.transferEnable > 0;
+    final int usedBytes = hasApiTraffic ? (authUser!.u + authUser.d) : 0;
+    final int totalBytes = hasApiTraffic ? authUser!.transferEnable : 0;
+    final double usagePercent = totalBytes > 0
+        ? (usedBytes / totalBytes).clamp(0.0, 1.0)
+        : (subInfo?.ratio ?? 0.0);
+    String bytesToGB(int b) => (b / (1024 * 1024 * 1024)).toStringAsFixed(2);
+    final consumedStr = hasApiTraffic ? bytesToGB(usedBytes) : (subInfo?.consumption.sizeGB() ?? '0.0');
+    final totalStr = hasApiTraffic ? bytesToGB(totalBytes) : (subInfo?.total.sizeGB() ?? '0.0');
 
     return Container(
       width: double.infinity,
