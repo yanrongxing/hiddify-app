@@ -19,6 +19,7 @@ import 'package:hiddify/features/proxy/active/active_proxy_delay_indicator.dart'
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 
 class HomePage extends HookConsumerWidget {

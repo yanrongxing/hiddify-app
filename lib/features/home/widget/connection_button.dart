@@ -19,6 +19,7 @@ import 'package:hiddify/features/settings/notifier/config_option/config_option_n
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 
 class RadarBorderPainter extends CustomPainter {
