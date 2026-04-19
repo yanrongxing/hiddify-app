@@ -69,12 +69,15 @@ class _InAppBrowserPageState extends State<InAppBrowserPage> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          WebViewWidget(controller: _controller),
-          if (_progress < 1.0)
-            LinearProgressIndicator(value: _progress),
-        ],
+      body: SafeArea(
+        top: false,
+        child: Stack(
+          children: [
+            WebViewWidget(controller: _controller),
+            if (_progress < 1.0)
+              LinearProgressIndicator(value: _progress),
+          ],
+        ),
       ),
     );
   }
