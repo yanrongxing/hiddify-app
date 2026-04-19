@@ -14,15 +14,12 @@ import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
-import 'package:hiddify/features/proxy/active/active_proxy_delay_indicator.dart';
-import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
-import 'package:hiddify/features/profile/widget/profile_tile.dart';
-import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_delay_indicator.dart';
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
@@ -52,9 +49,11 @@ class HomePage extends HookConsumerWidget {
           ),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.menu_rounded, color: theme.colorScheme.onSurface),
-          onPressed: () => context.goNamed('settings'),
+        leading: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Assets.images.logo.svg(
+            colorFilter: ColorFilter.mode(theme.colorScheme.onSurface, BlendMode.srcIn),
+          ),
         ),
         title: const Text(
           "XLINK VPN",
@@ -62,15 +61,8 @@ class HomePage extends HookConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle_outlined, color: theme.colorScheme.onSurface),
-            onPressed: () {
-              final isMobile = ref.read(isMobileBreakpointProvider) ?? true;
-              if (isMobile) {
-                ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview();
-              } else {
-                context.goNamed('profiles');
-              }
-            },
+            icon: Icon(Icons.menu_rounded, color: theme.colorScheme.onSurface),
+            onPressed: () => context.push('/settings'),
           ),
           const Gap(8),
         ],
@@ -187,19 +179,33 @@ class HomeDataCard extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        Text(
-                          plan.toUpperCase(),
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Space Grotesk',
-                            fontSize: 13,
+                        IconButton(
+                          icon: const Icon(Icons.sync_rounded, size: 20),
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          color: theme.colorScheme.primary,
+                          onPressed: () async {
+                            if (profile is RemoteProfileEntity) {
+                              ref.read(updateProfileNotifierProvider(profile.id).notifier).updateProfile(profile as RemoteProfileEntity);
+                            }
+                            ref.read(authNotifierProvider.notifier).syncSubscription();
+                          },
+                        ),
+                        const Gap(4),
+                        Expanded(
+                          child: Text(
+                            plan.toUpperCase(),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Space Grotesk',
+                              fontSize: 13,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),

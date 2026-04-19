@@ -40,15 +40,13 @@ class SettingsPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "SECURITY TERMINAL",
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontFamily: 'Space Grotesk',
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
-        ),
-        centerTitle: true,
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
+        title: const SizedBox.shrink(),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 16, bottom: 84),
