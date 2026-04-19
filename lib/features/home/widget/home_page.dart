@@ -323,8 +323,9 @@ class HomeDataCard extends HookConsumerWidget {
                       );
                       return;
                     }
-                    if (profile is RemoteProfileEntity) {
-                      ref.read(updateProfileNotifierProvider(profile.id).notifier).updateProfile(profile as RemoteProfileEntity);
+                    final p = profile;
+                    if (p is RemoteProfileEntity) {
+                      ref.read(updateProfileNotifierProvider(p.id).notifier).updateProfile(p);
                     }
                     ref.read(authNotifierProvider.notifier).syncSubscription();
                   },
