@@ -50,6 +50,8 @@ class AuthRepository with InfraLogger {
   final String baseUrl;
   final Dio _dio;
 
+  Dio get dio => _dio;
+
   /// Set the authorization token for subsequent requests.
   void setAuthToken(String token) {
     _dio.options.headers['Authorization'] = token;
@@ -208,12 +210,24 @@ class AuthRepository with InfraLogger {
   /// GET /api/v1/user/getSubscribe
   Future<String> getSubscribeUrl() async {
     try {
-      final response = await _dio.get('/api/v1/user/getSubscribe');
-      final data = response.data['data'] as Map<String, dynamic>;
-      final subscribeUrl = data['subscribe_url'] as String;
-      return subscribeUrl;
+      final info = await getSubscribeInfo();
+      return info['subscribe_url'] as String;
     } on DioException catch (e) {
       loggy.error('Get subscribe URL failed', e);
+      final message = _extractErrorMessage(e);
+      throw AuthException(message);
+    }
+  }
+
+  /// Get the complete subscription info for the current user.
+  ///
+  /// GET /api/v1/user/getSubscribe
+  Future<Map<String, dynamic>> getSubscribeInfo() async {
+    try {
+      final response = await _dio.get('/api/v1/user/getSubscribe');
+      return response.data['data'] as Map<String, dynamic>;
+    } on DioException catch (e) {
+      loggy.error('Get subscribe info failed', e);
       final message = _extractErrorMessage(e);
       throw AuthException(message);
     }

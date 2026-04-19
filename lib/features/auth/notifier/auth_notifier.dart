@@ -66,6 +66,7 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
 
       // Auto-sync subscription after login.
       await _syncSubscription(result.token);
+      await refreshSubscribeInfo();
     } on AuthException catch (e) {
       state = AuthState.error(message: e.message);
     } catch (e, st) {
@@ -97,6 +98,7 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
 
       // Auto-sync subscription after registration.
       await _syncSubscription(result.token);
+      await refreshSubscribeInfo();
     } on AuthException catch (e) {
       state = AuthState.error(message: e.message);
     } catch (e, st) {
@@ -122,11 +124,12 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
     final current = state;
     if (current is! Authenticated) return;
     try {
-      final user = await _authRepo.getUserInfo();
+      final updatedUser = await _authRepo.getUserInfo();
       state = AuthState.authenticated(
-        user: user,
+        user: updatedUser,
         authToken: current.authToken,
       );
+      await refreshSubscribeInfo();
     } on AuthException catch (e) {
       loggy.warning('Failed to refresh user info: ${e.message}');
       // If 401, force logout
@@ -162,7 +165,30 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
   Future<void> syncSubscription() async {
     final current = state;
     if (current is! Authenticated) return;
+
+    // Refresh user info and subscription info
+    await refreshUserInfo();
     await _syncSubscription(current.authToken);
+  }
+
+  /// Fetch subscription details and update UserModel.
+  Future<void> refreshSubscribeInfo() async {
+    final current = state;
+    if (current is! Authenticated) return;
+    try {
+      final info = await _authRepo.getSubscribeInfo();
+      final updatedUser = current.user.copyWith(
+        planId: info['plan_id'] as int?,
+        u: info['u'] as int? ?? 0,
+        d: info['d'] as int? ?? 0,
+        transferEnable: info['transfer_enable'] as int? ?? 0,
+        expiredAt: info['expired_at'] as int?,
+        subscribeUrl: info['subscribe_url'] as String?,
+      );
+      state = AuthState.authenticated(user: updatedUser, authToken: current.authToken);
+    } on AuthException catch (e) {
+      loggy.warning('Failed to refresh subscribe info: ${e.message}');
+    }
   }
 
   Future<void> _persistAuth(String token, String email) async {

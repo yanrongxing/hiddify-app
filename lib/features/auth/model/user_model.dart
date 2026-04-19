@@ -28,6 +28,24 @@ class UserModel with _$UserModel {
 
     /// Unix timestamp of when the user was created.
     int? createdAt,
+
+    /// Active plan ID.
+    @JsonKey(name: 'plan_id') int? planId,
+
+    /// Uploaded traffic in bytes.
+    @Default(0) int u,
+
+    /// Downloaded traffic in bytes.
+    @Default(0) int d,
+
+    /// Total allowed traffic in bytes.
+    @JsonKey(name: 'transfer_enable') @Default(0) int transferEnable,
+
+    /// Unix timestamp of expiration.
+    @JsonKey(name: 'expired_at') int? expiredAt,
+
+    /// Subscription URL.
+    @JsonKey(name: 'subscribe_url') String? subscribeUrl,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, Object?> json) =>
