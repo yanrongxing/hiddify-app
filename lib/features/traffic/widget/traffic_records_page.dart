@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/traffic/data/traffic_data_providers.dart';
 import 'package:hiddify/utils/utils.dart';
