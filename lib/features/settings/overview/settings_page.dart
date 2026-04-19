@@ -147,33 +147,33 @@ class SettingsPage extends HookConsumerWidget {
           SettingsSection(
             title: t.pages.settings.general.title,
             icon: Icons.layers_rounded,
-            namedLocation: context.namedLocation('general'),
+            routeName: 'general',
           ),
           if (!FeatureFlags.hideAdvancedSettings) ...[
             SettingsSection(
               title: t.pages.settings.routing.title,
               icon: Icons.route_rounded,
-              namedLocation: context.namedLocation('routeOptions'),
+              routeName: 'routeOptions',
             ),
             SettingsSection(
               title: t.pages.settings.dns.title,
               icon: Icons.dns_rounded,
-              namedLocation: context.namedLocation('dnsOptions'),
+              routeName: 'dnsOptions',
             ),
             SettingsSection(
               title: t.pages.settings.inbound.title,
               icon: Icons.input_rounded,
-              namedLocation: context.namedLocation('inboundOptions'),
+              routeName: 'inboundOptions',
             ),
             SettingsSection(
               title: t.pages.settings.tlsTricks.title,
               icon: Icons.content_cut_rounded,
-              namedLocation: context.namedLocation('tlsTricks'),
+              routeName: 'tlsTricks',
             ),
             SettingsSection(
               title: t.pages.settings.warp.title,
               icon: Icons.cloud_rounded,
-              namedLocation: context.namedLocation('warpOptions'),
+              routeName: 'warpOptions',
             ),
           ],
           if (PlatformUtils.isIOS)
@@ -190,12 +190,12 @@ class SettingsPage extends HookConsumerWidget {
             SettingsSection(
               title: t.pages.logs.title,
               icon: Icons.description_rounded,
-              namedLocation: context.namedLocation('logs'),
+              routeName: 'logs',
             ),
             SettingsSection(
               title: t.pages.about.title,
               icon: Icons.info_rounded,
-              namedLocation: context.namedLocation('about'),
+              routeName: 'about',
             ),
           ],
           // ── Xlink: Auth actions ──
@@ -223,11 +223,11 @@ class SettingsPage extends HookConsumerWidget {
 }
 
 class SettingsSection extends HookConsumerWidget {
-  const SettingsSection({super.key, required this.title, required this.icon, required this.namedLocation});
+  const SettingsSection({super.key, required this.title, required this.icon, required this.routeName});
 
   final String title;
   final IconData icon;
-  final String namedLocation;
+  final String routeName;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -235,7 +235,7 @@ class SettingsSection extends HookConsumerWidget {
       leading: Icon(icon),
       title: Text(title),
       trailing: const Icon(Icons.chevron_right_rounded),
-      onTap: () => context.go(namedLocation),
+      onTap: () => context.go(context.namedLocation(routeName)),
     );
   }
 }
