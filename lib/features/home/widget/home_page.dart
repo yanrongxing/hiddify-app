@@ -92,10 +92,9 @@ class HomePage extends HookConsumerWidget {
                             top: 0,
                             left: 0,
                             right: 0,
-                            child: switch (activeProfile) {
-                              AsyncData(value: final profile?) => HomeDataCard(profile: profile),
-                              _ => const SizedBox(),
-                            },
+                            child: HomeDataCard(
+                              profile: activeProfile.valueOrNull,
+                            ),
                           ),
                           const ConnectionButton(),
                           const Positioned(bottom: 0, left: 0, right: 0, child: ActiveProxyFooter()),
@@ -141,9 +140,9 @@ class AppVersionLabel extends HookConsumerWidget {
 }
 
 class HomeDataCard extends HookConsumerWidget {
-  const HomeDataCard({super.key, required this.profile});
+  const HomeDataCard({super.key, this.profile});
 
-  final ProfileEntity profile;
+  final ProfileEntity? profile;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -191,63 +190,61 @@ class HomeDataCard extends HookConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (subInfo != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: theme.colorScheme.primary,
-                                  boxShadow: [
-                                    BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.5), blurRadius: 8),
-                                  ],
-                                ),
-                              ),
-                              const Gap(8),
-                              Text(
-                                "$daysLeft DAYS",
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.onSurface,
-                                  letterSpacing: 1.5,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
                         ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: theme.colorScheme.primary,
+                                boxShadow: [
+                                  BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.5), blurRadius: 8),
+                                ],
+                              ),
+                            ),
+                            const Gap(8),
+                            Text(
+                              "$daysLeft DAYS",
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                                letterSpacing: 1.5,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  if (subInfo != null) ...[
-                    const Gap(16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Data Usage",
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                            fontSize: 14,
-                            fontFamily: 'Inter',
-                          ),
+                  const Gap(16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Data Usage",
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 14,
+                          fontFamily: 'Inter',
                         ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: consumedStr.replaceAll(RegExp(r'[a-zA-Z\s]+'), ''),
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface,
-                                  fontWeight: FontWeight.w500,
+                      ),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: consumedStr.replaceAll(RegExp(r'[a-zA-Z\s]+'), ''),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
                                   fontSize: 14,
                                 ),
                               ),
@@ -301,9 +298,8 @@ class HomeDataCard extends HookConsumerWidget {
                       ),
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
             Positioned(
               top: 0,
               left: 0,

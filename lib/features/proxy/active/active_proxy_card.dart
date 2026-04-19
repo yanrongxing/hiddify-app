@@ -23,23 +23,26 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
     final activeProxy = ref.watch(activeProxyNotifierProvider.select((value) => value.valueOrNull));
     final t = ref.watch(translationsProvider).requireValue;
 
-    // Early return if required data is not available
-    if (connectionState != const Connected() || activeProxy == null) {
-      return const SizedBox.shrink();
-    }
+    // Early return if not mounted (not needed usually, but just in case)
 
     final theme = Theme.of(context);
 
     // Handle URL test in a way that won't trigger during build
     Future<void> handleUrlTest() async {
       try {
-        if (!context.mounted) return;
+        if (!context.mounted || activeProxy == null) return;
         await ref.read(activeProxyNotifierProvider.notifier).urlTest("");
       } catch (e) {
         // Handle error here
         loggy.error("Error during URL test: $e");
       }
     }
+
+    final String nodeTag = activeProxy != null ? getRealOutboundTag(activeProxy) : "未连接节点";
+    final String nodeType = activeProxy != null ? activeProxy.type : "UNKNOWN";
+    final String nodeIp = activeProxy != null ? activeProxy.ipinfo.ip : "";
+    final String countryCode = activeProxy != null ? activeProxy.ipinfo.countryCode : "";
+    final String org = activeProxy != null ? activeProxy.ipinfo.org : "";
 
     return Container(
       width: double.infinity,
@@ -104,7 +107,7 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              getRealOutboundTag(activeProxy),
+                              nodeTag,
                               style: theme.textTheme.titleMedium?.copyWith(
                                 color: theme.colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
@@ -119,8 +122,12 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
                       ),
                       InkWell(
                         onTap: () async {
-                          await handleUrlTest();
-                          await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: activeProxy);
+                          if (activeProxy != null) {
+                            await handleUrlTest();
+                            await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: activeProxy);
+                          } else {
+                            context.goNamed('proxies');
+                          }
                         },
                         child: Container(
                           width: 40,
@@ -133,8 +140,8 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
                           clipBehavior: Clip.antiAlias,
                           alignment: Alignment.center,
                           child: IPCountryFlag(
-                            countryCode: activeProxy.ipinfo.countryCode,
-                            organization: activeProxy.ipinfo.org,
+                            countryCode: countryCode,
+                            organization: org,
                             size: 32, // The inner icon size, constrained by container
                           ),
                         ),
@@ -168,13 +175,13 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
                               children: [
                                 Icon(Icons.route_rounded, size: 14, color: theme.colorScheme.onSurfaceVariant),
                                 const SizedBox(width: 8),
-                                if (activeProxy.ipinfo.ip.isNotEmpty)
+                                if (nodeIp.isNotEmpty)
                                   DefaultTextStyle(
                                     style: theme.textTheme.bodySmall!.copyWith(
                                       color: theme.colorScheme.onSurface,
                                       fontSize: 14,
                                     ),
-                                    child: IPText(ip: activeProxy.ipinfo.ip, onLongPress: handleUrlTest, constrained: true),
+                                    child: IPText(ip: nodeIp, onLongPress: handleUrlTest, constrained: true),
                                   )
                                 else
                                   DefaultTextStyle(
@@ -192,7 +199,7 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
                                 Icon(Icons.alt_route_rounded, size: 14, color: theme.colorScheme.onSurfaceVariant),
                                 const SizedBox(width: 8),
                                 Text(
-                                  activeProxy.type,
+                                  nodeType,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                     fontSize: 12,
