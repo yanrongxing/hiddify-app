@@ -67,16 +67,14 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
     if (isMobileBreakpoint == null) return loadingConfig;
     return RoutingConfig(
       redirect: (context, state) {
-        // ── Xlink Auth Guard ──
+        // ── Xlink: no global auth guard ──
+        // Guests can use the app freely.
+        // Login is only required when accessing personal center (user_profile page).
         if (FeatureFlags.enableXlinkAuth) {
-          final authState = ref.read(authNotifierProvider);
           final isLoginPage = state.matchedLocation == '/login';
-          final isAuthenticated = authState is Authenticated;
-
-          if (!isAuthenticated && !isLoginPage) {
-            return '/login';
-          }
-          if (isAuthenticated && isLoginPage) {
+          final authState = ref.read(authNotifierProvider);
+          // Only redirect: if already logged in and on login page, go home
+          if (authState is Authenticated && isLoginPage) {
             return '/home';
           }
         }
@@ -95,7 +93,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           url = state.uri.queryParameters['url'];
         }
 
-        if (!introCompleted && !FeatureFlags.enableXlinkAuth) {
+        if (!introCompleted && state.matchedLocation != '/login') {
           return url != null ? '/intro?url=$url' : '/intro';
         } else if (isIntro) {
           if (url != null)

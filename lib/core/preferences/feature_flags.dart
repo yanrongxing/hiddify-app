@@ -6,9 +6,9 @@
 class FeatureFlags {
   const FeatureFlags._();
 
-  /// When true, the app requires Xlink login before accessing any feature.
-  /// The intro page becomes a login/register flow instead of the original
-  /// language/region selection + TOS acceptance.
+  /// When true, enables Xlink auth module (login/register pages available).
+  /// Guests can use the app freely (browse, connect VPN, etc.).
+  /// Login is only required when accessing user profile / personal center.
   static const bool enableXlinkAuth = true;
 
   /// When true, hides advanced settings that end users don't need:

@@ -5,6 +5,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/feature_flags.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
@@ -197,16 +198,23 @@ class SettingsPage extends HookConsumerWidget {
               namedLocation: context.namedLocation('about'),
             ),
           ],
-          // ── Xlink: Logout button ──
+          // ── Xlink: Auth actions ──
           if (FeatureFlags.enableXlinkAuth) ...[
             const Divider(),
-            ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Colors.red),
-              title: const Text('退出登录', style: TextStyle(color: Colors.red)),
-              onTap: () async {
-                await ref.read(authNotifierProvider.notifier).logout();
-              },
-            ),
+            if (ref.watch(authNotifierProvider) is Authenticated)
+              ListTile(
+                leading: const Icon(Icons.logout_rounded, color: Colors.red),
+                title: const Text('退出登录', style: TextStyle(color: Colors.red)),
+                onTap: () async {
+                  await ref.read(authNotifierProvider.notifier).logout();
+                },
+              )
+            else
+              ListTile(
+                leading: Icon(Icons.login_rounded, color: Theme.of(context).colorScheme.primary),
+                title: const Text('登录 / 注册'),
+                onTap: () => context.go('/login'),
+              ),
           ],
         ],
       ),
