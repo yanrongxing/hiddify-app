@@ -147,6 +147,67 @@ class HomeDataCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final isAuth = ref.watch(authNotifierProvider) is Authenticated;
+    
+    if (profile == null) {
+      return Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: const Color(0xFF353535).withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.bolt_rounded, color: theme.colorScheme.primary),
+                    const Gap(8),
+                    Text(
+                      isAuth ? '您还没有订阅套餐' : '未登录或无订阅',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(8),
+                Text(
+                  isAuth ? '购买套餐后即可使用高速节点' : '请先登录，然后购买订阅套餐',
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                ),
+                const Gap(16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      if (isAuth) {
+                        if (FeatureFlags.enableSubscriptionShop) {
+                          context.pushNamed('shop');
+                        } else {
+                          UriUtils.tryLaunch(Uri.parse('https://47.79.38.161/#/plan'));
+                        }
+                      } else {
+                        context.pushNamed('login');
+                      }
+                    },
+                    child: Text(isAuth ? '立即购买' : '前往登录'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final subInfo = profile is RemoteProfileEntity ? (profile as RemoteProfileEntity).subInfo : null;
 
     final plan = "Premium Plan";
@@ -361,7 +422,11 @@ class HomeDataCard extends HookConsumerWidget {
                         },
                       );
                       if (shouldSubscribe == true && context.mounted) {
-                        UriUtils.tryLaunch(Uri.parse('https://47.79.38.161/#/plan'));
+                        if (FeatureFlags.enableSubscriptionShop) {
+                          context.pushNamed('shop');
+                        } else {
+                          UriUtils.tryLaunch(Uri.parse('https://47.79.38.161/#/plan'));
+                        }
                       }
                       return;
                     }
