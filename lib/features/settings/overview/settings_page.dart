@@ -11,6 +11,7 @@ import 'package:hiddify/features/settings/notifier/config_option/config_option_n
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hiddify/core/localization/locale_preferences.dart';
+import 'package:hiddify/core/localization/locale_extensions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 enum ConfigOptionSection {
