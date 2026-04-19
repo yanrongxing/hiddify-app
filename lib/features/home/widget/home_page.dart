@@ -50,7 +50,7 @@ class HomePage extends HookConsumerWidget {
         ),
         centerTitle: true,
         leading: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(8.0),
           child: Assets.images.logo.svg(),
         ),
         title: const Text(
@@ -59,7 +59,7 @@ class HomePage extends HookConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.menu_rounded, color: theme.colorScheme.onSurface),
+            icon: Icon(Icons.account_circle, color: theme.colorScheme.onSurface, size: 28),
             onPressed: () => context.push('/settings'),
           ),
           const Gap(8),
@@ -167,47 +167,30 @@ class HomeDataCard extends HookConsumerWidget {
       clipBehavior: Clip.antiAlias,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20).copyWith(top: 24),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.sync_rounded, size: 20),
-                          visualDensity: VisualDensity.compact,
-                          padding: EdgeInsets.zero,
-                          color: theme.colorScheme.primary,
-                          onPressed: () async {
-                            if (profile is RemoteProfileEntity) {
-                              ref.read(updateProfileNotifierProvider(profile.id).notifier).updateProfile(profile as RemoteProfileEntity);
-                            }
-                            ref.read(authNotifierProvider.notifier).syncSubscription();
-                          },
-                        ),
-                        const Gap(4),
-                        Expanded(
-                          child: Text(
-                            plan.toUpperCase(),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Space Grotesk',
-                              fontSize: 13,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          plan.toUpperCase(),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Space Grotesk',
+                            fontSize: 13,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
                   if (subInfo != null)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -317,11 +300,32 @@ class HomeDataCard extends HookConsumerWidget {
                     ),
                   ),
                 ),
-              ],
             ],
           ),
         ),
-      ),
-    );
+        Positioned(
+          top: 0,
+          left: 0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.2),
+              borderRadius: const BorderRadius.only(bottomRight: Radius.circular(12)),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.sync_rounded, size: 18),
+              visualDensity: VisualDensity.compact,
+              color: theme.colorScheme.primary,
+              onPressed: () async {
+                if (profile is RemoteProfileEntity) {
+                  ref.read(updateProfileNotifierProvider(profile.id).notifier).updateProfile(profile as RemoteProfileEntity);
+                }
+                ref.read(authNotifierProvider.notifier).syncSubscription();
+              },
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
   }
 }
