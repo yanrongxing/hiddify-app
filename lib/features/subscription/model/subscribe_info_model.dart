@@ -4,25 +4,41 @@ import 'package:hiddify/features/subscription/model/plan_model.dart';
 part 'subscribe_info_model.freezed.dart';
 part 'subscribe_info_model.g.dart';
 
+int _parseInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) return int.tryParse(value) ?? 0;
+  return 0;
+}
+
+int? _parseIntNullable(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
 @freezed
 class SubscribeInfoModel with _$SubscribeInfoModel {
   const SubscribeInfoModel._();
 
   const factory SubscribeInfoModel({
     /// Active plan ID.
-    @JsonKey(name: 'plan_id') int? planId,
+    @JsonKey(name: 'plan_id', fromJson: _parseIntNullable) int? planId,
 
     /// Uploaded traffic in bytes.
-    @Default(0) int u,
+    @JsonKey(fromJson: _parseInt) @Default(0) int u,
 
     /// Downloaded traffic in bytes.
-    @Default(0) int d,
+    @JsonKey(fromJson: _parseInt) @Default(0) int d,
 
     /// Total allowed traffic in bytes.
-    @JsonKey(name: 'transfer_enable') @Default(0) int transferEnable,
+    @JsonKey(name: 'transfer_enable', fromJson: _parseInt) @Default(0) int transferEnable,
 
     /// Unix timestamp of expiration.
-    @JsonKey(name: 'expired_at') int? expiredAt,
+    @JsonKey(name: 'expired_at', fromJson: _parseIntNullable) int? expiredAt,
 
     /// Subscription URL.
     @JsonKey(name: 'subscribe_url') String? subscribeUrl,
