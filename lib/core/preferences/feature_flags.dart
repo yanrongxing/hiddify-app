@@ -10,7 +10,6 @@ class FeatureFlags {
   /// = true  → 启用 Xlink 登录/注册功能：
   ///           • 路由中注册 /login 页面
   ///           • 设置页底部显示「登录/注册」或「退出登录」按钮
-  ///           • 跳过原版引导页（语言选择 + 服务条款）
   ///           • 游客可自由使用 App，仅进入个人中心时要求登录
   /// = false → 使用原版 Hiddify 流程（无登录，显示引导页）
   static const bool enableXlinkAuth = true;

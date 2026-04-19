@@ -96,7 +96,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           url = state.uri.queryParameters['url'];
         }
 
-        if (!introCompleted && !FeatureFlags.enableXlinkAuth) {
+        if (!introCompleted) {
           return url != null ? '/intro?url=$url' : '/intro';
         } else if (isIntro) {
           if (url != null)
@@ -182,29 +182,38 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                     ),
                   ),
                   routes: <GoRoute>[
+                    GoRoute(
+                      name: 'general',
+                      path: '/general',
+                      pageBuilder: (_, state) =>
+                          customTransition(TransitionType.slide, state.pageKey, const GeneralPage()),
+                    ),
+                    if (FeatureFlags.enableSubscriptionShop) ...[
                       GoRoute(
-                        name: 'general',
-                        path: '/general',
+                        name: 'shop',
+                        path: '/shop',
                         pageBuilder: (_, state) =>
-                            customTransition(TransitionType.slide, state.pageKey, const GeneralPage()),
+                            customTransition(TransitionType.slide, state.pageKey, const ShopPage()),
                       ),
-                      if (FeatureFlags.enableSubscriptionShop) ...[
-                        GoRoute(
-                          name: 'shop',
-                          path: '/shop',
-                          pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const ShopPage()),
+                      GoRoute(
+                        name: 'checkout',
+                        path: '/checkout/:planId',
+                        pageBuilder: (_, state) => customTransition(
+                          TransitionType.slide,
+                          state.pageKey,
+                          CheckoutPage(planId: state.pathParameters['planId']!),
                         ),
-                        GoRoute(
-                          name: 'checkout',
-                          path: '/checkout/:planId',
-                          pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, CheckoutPage(planId: state.pathParameters['planId']!)),
+                      ),
+                      GoRoute(
+                        name: 'orderDetail',
+                        path: '/order-detail/:tradeNo',
+                        pageBuilder: (_, state) => customTransition(
+                          TransitionType.slide,
+                          state.pageKey,
+                          OrderDetailPage(tradeNo: state.pathParameters['tradeNo']!),
                         ),
-                        GoRoute(
-                          name: 'orderDetail',
-                          path: '/order-detail/:tradeNo',
-                          pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, OrderDetailPage(tradeNo: state.pathParameters['tradeNo']!)),
-                        ),
-                      ],
+                      ),
+                    ],
                     if (!FeatureFlags.hideAdvancedSettings)
                       GoRoute(
                         name: 'routeOptions',
@@ -288,8 +297,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           ],
         ),
         GoRoute(name: 'intro', path: '/intro', builder: (_, _) => const IntroPage()),
-        if (FeatureFlags.enableXlinkAuth)
-          GoRoute(name: 'login', path: '/login', builder: (_, _) => const LoginPage()),
+        if (FeatureFlags.enableXlinkAuth) GoRoute(name: 'login', path: '/login', builder: (_, _) => const LoginPage()),
       ],
     );
   }
