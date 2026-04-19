@@ -288,7 +288,7 @@ class CheckoutPage extends HookConsumerWidget {
                 }
               } catch (e) {
                 if (context.mounted) {
-                  CustomToast.error(context.mounted ? context : context, e.toString());
+                  CustomToast.error(e.toString()).show(context);
                 }
               }
             },

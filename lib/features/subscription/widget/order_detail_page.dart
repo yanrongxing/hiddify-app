@@ -146,7 +146,7 @@ class OrderDetailPage extends HookConsumerWidget {
                       await notifier.checkout();
                     } catch (e) {
                       if (context.mounted) {
-                        CustomToast.error(context, e.toString());
+                        CustomToast.error(e.toString()).show(context);
                       }
                     }
                   },
