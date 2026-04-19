@@ -26,6 +26,9 @@ import 'package:hiddify/features/settings/overview/sections/route_options_page.d
 import 'package:hiddify/features/settings/overview/sections/tls_tricks_page.dart';
 import 'package:hiddify/features/settings/overview/sections/warp_options_page.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
+import 'package:hiddify/features/subscription/widget/checkout_page.dart';
+import 'package:hiddify/features/subscription/widget/order_detail_page.dart';
+import 'package:hiddify/features/subscription/widget/shop_page.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -179,12 +182,29 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                     ),
                   ),
                   routes: <GoRoute>[
-                    GoRoute(
-                      name: 'general',
-                      path: '/general',
-                      pageBuilder: (_, state) =>
-                          customTransition(TransitionType.slide, state.pageKey, const GeneralPage()),
-                    ),
+                      GoRoute(
+                        name: 'general',
+                        path: '/general',
+                        pageBuilder: (_, state) =>
+                            customTransition(TransitionType.slide, state.pageKey, const GeneralPage()),
+                      ),
+                      if (FeatureFlags.enableSubscriptionShop) ...[
+                        GoRoute(
+                          name: 'shop',
+                          path: '/shop',
+                          pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const ShopPage()),
+                        ),
+                        GoRoute(
+                          name: 'checkout',
+                          path: '/checkout/:planId',
+                          pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, CheckoutPage(planId: state.pathParameters['planId']!)),
+                        ),
+                        GoRoute(
+                          name: 'orderDetail',
+                          path: '/order-detail/:tradeNo',
+                          pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, OrderDetailPage(tradeNo: state.pathParameters['tradeNo']!)),
+                        ),
+                      ],
                     if (!FeatureFlags.hideAdvancedSettings)
                       GoRoute(
                         name: 'routeOptions',
