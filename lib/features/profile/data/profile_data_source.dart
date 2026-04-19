@@ -17,6 +17,7 @@ abstract interface class ProfileDataSource {
   Future<void> insert(ProfileEntriesCompanion entry);
   Future<void> edit(String id, ProfileEntriesCompanion entry);
   Future<void> deleteById(String id, bool isActive);
+  Future<List<ProfileEntry>> getAllProfiles();
 }
 
 Map<SortMode, OrderingMode> orderMap = {SortMode.ascending: OrderingMode.asc, SortMode.descending: OrderingMode.desc};
@@ -126,5 +127,10 @@ class ProfileDao extends DatabaseAccessor<Db> with _$ProfileDaoMixin, InfraLogge
         )..where((tbl) => tbl.id.equals(prof.id))).write(const ProfileEntriesCompanion(active: Value(true)));
       }
     });
+  }
+
+  @override
+  Future<List<ProfileEntry>> getAllProfiles() async {
+    return await profileEntries.select().get();
   }
 }

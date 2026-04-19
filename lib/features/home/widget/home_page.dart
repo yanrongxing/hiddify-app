@@ -316,6 +316,16 @@ class HomeDataCard extends HookConsumerWidget {
                   visualDensity: VisualDensity.compact,
                   color: theme.colorScheme.primary,
                   onPressed: () async {
+                    final isAuthenticated = ref.read(authNotifierProvider) is Authenticated;
+                    if (!isAuthenticated) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('请先登录后再更新订阅'),
+                          backgroundColor: theme.colorScheme.error,
+                        ),
+                      );
+                      return;
+                    }
                     if (profile is RemoteProfileEntity) {
                       ref.read(updateProfileNotifierProvider(profile.id).notifier).updateProfile(profile as RemoteProfileEntity);
                     }

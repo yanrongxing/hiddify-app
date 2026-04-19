@@ -22,6 +22,7 @@ abstract interface class ProfileRepository {
   TaskEither<ProfileFailure, ProfileEntity?> getById(String id);
   TaskEither<ProfileFailure, Unit> setAsActive(String id);
   TaskEither<ProfileFailure, Unit> deleteById(String id, bool isActive);
+  TaskEither<ProfileFailure, Unit> deleteAll();
   Stream<Either<ProfileFailure, ProfileEntity?>> watchActiveProfile();
   Stream<Either<ProfileFailure, bool>> watchHasAnyProfile();
   Stream<Either<ProfileFailure, List<ProfileEntity>>> watchAll({
@@ -89,6 +90,21 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
     return TaskEither.tryCatch(() async {
       await _profileDataSource.deleteById(id, isActive);
       await _profilePathResolver.file(id).delete();
+      return unit;
+    }, ProfileUnexpectedFailure.new);
+  }
+
+  @override
+  TaskEither<ProfileFailure, Unit> deleteAll() {
+    return TaskEither.tryCatch(() async {
+      final profiles = await _profileDataSource.getAllProfiles();
+      for (final profile in profiles) {
+        await _profileDataSource.deleteById(profile.id, profile.active);
+        final file = _profilePathResolver.file(profile.id);
+        if (file.existsSync()) {
+          await file.delete();
+        }
+      }
       return unit;
     }, ProfileUnexpectedFailure.new);
   }

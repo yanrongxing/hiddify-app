@@ -19,6 +19,7 @@ import 'package:hiddify/features/settings/notifier/config_option/config_option_n
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 
 class RadarBorderPainter extends CustomPainter {
   final Color color;
@@ -138,6 +139,9 @@ class ConnectionButton extends HookConsumerWidget {
       secureLabel = "";
     }
 
+    final authState = ref.watch(authNotifierProvider);
+    final isAuthenticated = authState is Authenticated;
+
     final isConnecting = switch (connectionStatus) {
       AsyncData(value: Connected()) when requiresReconnect == true => false,
       AsyncData(value: Connected()) when delay <= 0 || delay >= 65000 => true,
@@ -148,6 +152,14 @@ class ConnectionButton extends HookConsumerWidget {
     return _ConnectionButton(
       isConnecting: isConnecting,
       onTap: switch (connectionStatus) {
+        _ when !isAuthenticated => () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('请先登录后再连接 VPN'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        },
         AsyncData(value: Connected()) when requiresReconnect == true => () async {
           final activeProfile = await ref.read(activeProfileProvider.future);
           return await ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);

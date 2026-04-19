@@ -36,7 +36,18 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
         );
       }
     }
+    // If not authenticated, clear profiles
+    Future.microtask(() => _clearAllProfiles());
     return const AuthState.unauthenticated();
+  }
+
+  Future<void> _clearAllProfiles() async {
+    try {
+      final profileRepo = await ref.read(profileRepositoryProvider.future);
+      await profileRepo.deleteAll().run();
+    } catch (e) {
+      loggy.error('Failed to clear profiles', e);
+    }
   }
 
   /// Login with email and password.
@@ -102,6 +113,7 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       await prefs.remove(_kAuthToken);
       await prefs.remove(_kUserEmail);
     }
+    await _clearAllProfiles();
     state = const AuthState.unauthenticated();
   }
 

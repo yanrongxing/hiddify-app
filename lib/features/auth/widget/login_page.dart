@@ -24,9 +24,11 @@ class LoginPage extends HookConsumerWidget {
 
     final isLoading = authState is AuthLoading;
 
-    // Listen for auth errors to show snackbar.
+    // Listen for auth state changes
     ref.listen<AuthState>(authNotifierProvider, (_, next) {
-      if (next is AuthError) {
+      if (next is Authenticated) {
+        context.goNamed('home');
+      } else if (next is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.message),

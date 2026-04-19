@@ -45,18 +45,17 @@ class RegisterPage extends HookConsumerWidget {
       return timer.cancel;
     }, [countdown.value > 0]);
 
+    // Listen for auth state changes
     ref.listen<AuthState>(authNotifierProvider, (_, next) {
-      if (next is AuthError) {
+      if (next is Authenticated) {
+        context.goNamed('home');
+      } else if (next is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.message),
             backgroundColor: theme.colorScheme.error,
           ),
         );
-      }
-      if (next is Authenticated) {
-        // Pop back to root on success.
-        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     });
 
