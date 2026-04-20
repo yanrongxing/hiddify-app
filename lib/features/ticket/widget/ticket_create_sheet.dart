@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/ticket/data/ticket_data_providers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -10,6 +11,7 @@ class TicketCreateSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final t = ref.watch(translationsProvider).requireValue;
     final subjectCtrl = useTextEditingController();
     final messageCtrl = useTextEditingController();
     final level = useState<int>(0);
@@ -26,26 +28,26 @@ class TicketCreateSheet extends HookConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('创建工单', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          Text(t.pages.xlink.createTicket, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
           const Gap(24),
           TextField(
             controller: subjectCtrl,
-            decoration: const InputDecoration(
-              labelText: '主题',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: t.pages.xlink.ticketSubject,
+              border: const OutlineInputBorder(),
             ),
           ),
           const Gap(16),
           DropdownButtonFormField<int>(
             value: level.value,
-            decoration: const InputDecoration(
-              labelText: '工单级别',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: t.pages.xlink.ticketLevel,
+              border: const OutlineInputBorder(),
             ),
-            items: const [
-              DropdownMenuItem(value: 0, child: Text('一般')),
-              DropdownMenuItem(value: 1, child: Text('重要')),
-              DropdownMenuItem(value: 2, child: Text('紧急')),
+            items: [
+              DropdownMenuItem(value: 0, child: Text(t.pages.xlink.ticketLevelNormal)),
+              DropdownMenuItem(value: 1, child: Text(t.pages.xlink.ticketLevelImportant)),
+              DropdownMenuItem(value: 2, child: Text(t.pages.xlink.ticketLevelUrgent)),
             ],
             onChanged: (val) {
               if (val != null) level.value = val;
@@ -55,9 +57,9 @@ class TicketCreateSheet extends HookConsumerWidget {
           TextField(
             controller: messageCtrl,
             maxLines: 5,
-            decoration: const InputDecoration(
-              labelText: '问题描述',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: t.pages.xlink.ticketDescription,
+              border: const OutlineInputBorder(),
             ),
           ),
           const Gap(24),
@@ -77,13 +79,13 @@ class TicketCreateSheet extends HookConsumerWidget {
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('提交失败: $e')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t.pages.xlink.submitFailed}: $e')));
                 }
               } finally {
                 isSubmitting.value = false;
               }
             },
-            child: isSubmitting.value ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('提交'),
+            child: isSubmitting.value ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : Text(t.pages.xlink.submit),
           ),
           const Gap(24),
         ],

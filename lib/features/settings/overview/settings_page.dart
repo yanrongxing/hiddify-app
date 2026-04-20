@@ -39,12 +39,12 @@ class SettingsPage extends HookConsumerWidget {
 
     final isAuthenticated = authState is Authenticated;
     final user = isAuthenticated ? authState.user : null;
-    final email = user?.email ?? 'Guest User';
+    final email = user?.email ?? t.pages.xlink.guestUser;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.goNamed('home')),
-        title: Text("个人中心", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        title: Text(t.pages.xlink.personalCenter, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -57,7 +57,7 @@ class SettingsPage extends HookConsumerWidget {
                     title: t.pages.settings.general.locale,
                     selected: locale,
                     onReset: () => ref.read(localePreferencesProvider.notifier).changeLocale(AppLocale.en),
-                    options: AppLocale.values,
+                    options: [AppLocale.zhCn, AppLocale.en],
                     getTitle: (e) => e.localeName,
                   );
               if (selectedLocale != null) {
@@ -123,8 +123,8 @@ class SettingsPage extends HookConsumerWidget {
                               const Gap(8),
                               Text(
                                 isAuthenticated
-                                    ? (user?.planName ?? '\u514d\u8d39\u7528\u6237')
-                                    : 'Guest / \u8a2a\u5ba2',
+                                    ? (user?.planName ?? t.pages.xlink.freeUser)
+                                    : t.pages.xlink.guest,
                                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                             ],
@@ -139,7 +139,7 @@ class SettingsPage extends HookConsumerWidget {
                   FilledButton.icon(
                     onPressed: () => context.push('/login'),
                     icon: const Icon(Icons.login_rounded),
-                    label: const Text('登入 / 註冊'),
+                    label: Text(t.pages.xlink.loginRegister),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -167,10 +167,10 @@ class SettingsPage extends HookConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('我的订阅', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                              Text(t.pages.xlink.mySubscription, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                               if (user.expiredAt != null)
                                 Text(
-                                  '到期: ${DateTime.fromMillisecondsSinceEpoch(user.expiredAt! * 1000).toString().split(' ')[0]}',
+                                  '${t.pages.xlink.expires}: ${DateTime.fromMillisecondsSinceEpoch(user.expiredAt! * 1000).toString().split(' ')[0]}',
                                   style: theme.textTheme.labelMedium?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -182,7 +182,7 @@ class SettingsPage extends HookConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '流量使用',
+                                t.pages.xlink.dataUsage,
                                 style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                               Builder(
@@ -246,7 +246,7 @@ class SettingsPage extends HookConsumerWidget {
                               Icon(Icons.bolt_rounded, color: theme.colorScheme.onPrimaryContainer),
                               const Gap(8),
                               Text(
-                                user?.planId != null ? '续费 / 升级' : '立即訂閱',
+                                user?.planId != null ? t.pages.xlink.renewUpgrade : t.pages.xlink.subscribeNow,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   color: theme.colorScheme.onPrimaryContainer,
                                   fontFamily: 'Space Grotesk',
@@ -270,20 +270,20 @@ class SettingsPage extends HookConsumerWidget {
           _MenuGroup(
             children: [
               if (FeatureFlags.enableSubscriptionShop)
-                _MenuItem(
-                  icon: Icons.storefront_rounded,
-                  title: '订阅商店',
-                  onTap: () => context.pushNamed('shop'),
-                ),
+                _MenuItem(icon: Icons.storefront_rounded, title: t.pages.xlink.subscriptionShop, onTap: () => context.pushNamed('shop')),
               _MenuItem(icon: Icons.qr_code_scanner_rounded, title: '掃描二維碼', onTap: () {}),
-              _MenuItem(icon: Icons.share_rounded, title: t.pages.share.title, onTap: () {
-                if (ref.read(authNotifierProvider) is Authenticated) {
-                  context.pushNamed('share');
-                } else {
-                  context.push('/login');
-                }
-              }),
-              _MenuItem(icon: Icons.local_activity_rounded, title: '卡券', onTap: () {}, showBorder: false),
+              _MenuItem(
+                icon: Icons.share_rounded,
+                title: t.pages.share.title,
+                onTap: () {
+                  if (ref.read(authNotifierProvider) is Authenticated) {
+                    context.pushNamed('share');
+                  } else {
+                    context.push('/login');
+                  }
+                },
+              ),
+              _MenuItem(icon: Icons.local_activity_rounded, title: t.pages.xlink.coupons, onTap: () {}, showBorder: false),
             ],
           ),
           const Gap(16),
@@ -298,34 +298,31 @@ class SettingsPage extends HookConsumerWidget {
               ),
               _MenuItem(
                 icon: Icons.settings_rounded,
-                title: '高級設定 (Advanced Settings)',
+                title: t.pages.xlink.advancedSettings,
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AdvancedSettingsPage()));
                 },
               ),
               _MenuItem(
                 icon: Icons.help_outline_rounded,
-                title: '幫助中心',
+                title: t.pages.xlink.helpCenter,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const InAppBrowserPage(
-                        url: 'https://47.79.38.161/#/tutorial',
-                        title: '幫助中心',
-                      ),
+                      builder: (_) => InAppBrowserPage(url: 'https://47.79.38.161/#/tutorial', title: t.pages.xlink.helpCenter),
                     ),
                   );
                 },
               ),
               _MenuItem(
                 icon: Icons.support_agent_rounded,
-                title: '在線客服',
+                title: t.pages.xlink.onlineSupport,
                 onTap: () => context.go(context.namedLocation('support')),
               ),
-              _MenuItem(icon: Icons.alternate_email_rounded, title: '官方「X」帳號', onTap: () {}),
+              _MenuItem(icon: Icons.alternate_email_rounded, title: t.pages.xlink.officialXAccount, onTap: () {}),
               _MenuItem(
                 icon: Icons.info_outline_rounded,
-                title: '關於 App',
+                title: t.pages.xlink.aboutApp,
                 onTap: () => context.go(context.namedLocation('about')),
                 showBorder: false,
               ),

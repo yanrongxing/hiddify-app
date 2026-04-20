@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/subscription/model/billing_period.dart';
 import 'package:hiddify/features/subscription/notifier/checkout_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -15,6 +16,7 @@ class CheckoutPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final t = ref.watch(translationsProvider).requireValue;
     final id = int.tryParse(planId) ?? 0;
     final checkoutState = ref.watch(checkoutNotifierProvider(id));
     final notifier = ref.read(checkoutNotifierProvider(id).notifier);
@@ -22,8 +24,8 @@ class CheckoutPage extends HookConsumerWidget {
 
     if (checkoutState.plan == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('确认订单')),
-        body: const Center(child: Text('找不到套餐信息')),
+        appBar: AppBar(title: Text(t.pages.xlink.confirmOrder)),
+        body: Center(child: Text(t.pages.xlink.planNotFound)),
       );
     }
 
@@ -47,7 +49,7 @@ class CheckoutPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "确认订单",
+          t.pages.xlink.confirmOrder,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -80,9 +82,9 @@ class CheckoutPage extends HookConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _Stat(label: '流量', value: plan.transferEnable != null ? '${plan.transferEnable} GB' : '不限'),
-                      _Stat(label: '速率', value: plan.speedLimit != null ? '${plan.speedLimit} Mbps' : '不限速'),
-                      _Stat(label: '设备', value: plan.deviceLimit != null ? '${plan.deviceLimit} 台' : '不限'),
+                      _Stat(label: t.pages.xlink.traffic, value: plan.transferEnable != null ? '${plan.transferEnable} GB' : t.pages.xlink.unlimited),
+                      _Stat(label: t.pages.xlink.speed, value: plan.speedLimit != null ? '${plan.speedLimit} Mbps' : t.pages.xlink.unlimitedSpeed),
+                      _Stat(label: t.pages.xlink.devices, value: plan.deviceLimit != null ? '${plan.deviceLimit}' : t.pages.xlink.unlimited),
                     ],
                   ),
                   if (plan.content != null && plan.content!.isNotEmpty) ...[
@@ -102,7 +104,7 @@ class CheckoutPage extends HookConsumerWidget {
 
           // Period selection
           Text(
-            '选择付费周期',
+            t.pages.xlink.selectPeriod,
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const Gap(12),
@@ -154,7 +156,7 @@ class CheckoutPage extends HookConsumerWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            '省 $savings%',
+                            t.pages.xlink.savingsPercent(percent: savings.toString()),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: theme.colorScheme.onErrorContainer,
                               fontWeight: FontWeight.bold,
@@ -172,7 +174,7 @@ class CheckoutPage extends HookConsumerWidget {
 
           // Coupon
           Text(
-            '优惠券',
+            t.pages.xlink.coupon,
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const Gap(12),
@@ -182,7 +184,7 @@ class CheckoutPage extends HookConsumerWidget {
                 child: TextField(
                   controller: couponController,
                   decoration: InputDecoration(
-                    hintText: '输入优惠码',
+                    hintText: t.pages.xlink.enterCouponCode,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
@@ -195,7 +197,7 @@ class CheckoutPage extends HookConsumerWidget {
                     notifier.applyCoupon(couponController.text);
                   }
                 },
-                child: const Text('验证'),
+                child: Text(t.pages.xlink.verify),
               ),
             ],
           ),
@@ -213,7 +215,7 @@ class CheckoutPage extends HookConsumerWidget {
                 Icon(Icons.check_circle_rounded, size: 16, color: theme.colorScheme.primary),
                 const Gap(8),
                 Text(
-                  '已抵扣: -¥${(discount / 100).toStringAsFixed(2)}',
+                  '${t.pages.xlink.applied}: -¥${(discount / 100).toStringAsFixed(2)}',
                   style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),
                 ),
                 const Spacer(),
@@ -222,7 +224,7 @@ class CheckoutPage extends HookConsumerWidget {
                     couponController.clear();
                     notifier.clearCoupon();
                   },
-                  child: const Text('清除'),
+                  child: Text(t.pages.xlink.clear),
                 ),
               ],
             ),
@@ -241,7 +243,7 @@ class CheckoutPage extends HookConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('套餐费用', style: theme.textTheme.bodyLarge),
+                    Text(t.pages.xlink.planFee, style: theme.textTheme.bodyLarge),
                     Text('¥${(subtotal / 100).toStringAsFixed(2)}', style: theme.textTheme.bodyLarge),
                   ],
                 ),
@@ -250,7 +252,7 @@ class CheckoutPage extends HookConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('优惠抵扣', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.primary)),
+                      Text(t.pages.xlink.couponDiscount, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.primary)),
                       Text('-¥${(discount / 100).toStringAsFixed(2)}', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.primary)),
                     ],
                   ),
@@ -261,7 +263,7 @@ class CheckoutPage extends HookConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('合计', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    Text(t.pages.xlink.orderTotal, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                     Text(
                       '¥${(total / 100).toStringAsFixed(2)}',
                       style: theme.textTheme.headlineSmall?.copyWith(
@@ -302,9 +304,9 @@ class CheckoutPage extends HookConsumerWidget {
                     width: 24,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text(
-                    '立即下单',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                : Text(
+                    t.pages.xlink.placeOrder,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
           ),
           const Gap(32),

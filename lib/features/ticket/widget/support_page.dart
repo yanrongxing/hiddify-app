@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/ticket/widget/in_app_browser_page.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class SupportPage extends StatelessWidget {
+class SupportPage extends HookConsumerWidget {
   const SupportPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final t = ref.watch(translationsProvider).requireValue;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '在线客服',
+          t.pages.xlink.onlineSupport,
           style: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'Space Grotesk',
             fontWeight: FontWeight.bold,
@@ -26,14 +29,14 @@ class SupportPage extends StatelessWidget {
         children: [
           _SupportCard(
             icon: Icons.chat_bubble_outline_rounded,
-            title: '人工客服',
-            subtitle: '联系在线客服获取即时帮助',
+            title: t.pages.xlink.liveSupport,
+            subtitle: t.pages.xlink.liveSupportDesc,
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const InAppBrowserPage(
+                  builder: (_) => InAppBrowserPage(
                     url: 'https://tawk.to/chat/69e3f4246ef56e1c36f53d31/1jmh73cff',
-                    title: '人工客服',
+                    title: t.pages.xlink.liveSupport,
                   ),
                 ),
               );
@@ -42,8 +45,8 @@ class SupportPage extends StatelessWidget {
           const Gap(16),
           _SupportCard(
             icon: Icons.confirmation_number_outlined,
-            title: '工单中心',
-            subtitle: '提交工单，跟踪问题处理进度',
+            title: t.pages.xlink.ticketCenter,
+            subtitle: t.pages.xlink.ticketCenterDesc,
             onTap: () => context.pushNamed('ticketCenter'),
           ),
         ],

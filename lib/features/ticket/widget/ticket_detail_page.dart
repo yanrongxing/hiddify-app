@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/ticket/data/ticket_data_providers.dart';
 import 'package:hiddify/features/ticket/model/ticket_model.dart';
 import 'package:hiddify/features/ticket/model/ticket_message_model.dart';
@@ -18,6 +19,7 @@ class TicketDetailPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final t = ref.watch(translationsProvider).requireValue;
     final messagesState = ref.watch(ticketMessagesProvider(ticketId));
     final ticketList = ref.watch(ticketListProvider).valueOrNull ?? [];
     final ticket = ticketList.firstWhere((e) => e.id == ticketId, orElse: () => const TicketModel(id: 0, subject: '', level: 0, status: 0, createdAt: 0, updatedAt: 0));
@@ -28,7 +30,7 @@ class TicketDetailPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          ticket.subject.isNotEmpty ? ticket.subject : '工单详情',
+          ticket.subject.isNotEmpty ? ticket.subject : t.pages.xlink.ticketDetail,
           style: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'Space Grotesk',
             fontWeight: FontWeight.bold,
@@ -38,9 +40,9 @@ class TicketDetailPage extends HookConsumerWidget {
           if (!ticket.isClosed)
             PopupMenuButton(
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'close',
-                  child: Text('关闭工单'),
+                  child: Text(t.pages.xlink.closeTicket),
                 ),
               ],
               onSelected: (val) async {
@@ -48,11 +50,11 @@ class TicketDetailPage extends HookConsumerWidget {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('确认关闭'),
-                      content: const Text('确定要关闭此工单吗？关闭后无法继续回复。'),
+                      title: Text(t.pages.xlink.confirmClose),
+                      content: Text(t.pages.xlink.confirmCloseHint),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
-                        FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('关闭')),
+                        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.common.cancel)),
+                        FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(t.pages.xlink.closeTicket)),
                       ],
                     ),
                   );
@@ -63,7 +65,7 @@ class TicketDetailPage extends HookConsumerWidget {
                       ref.invalidate(ticketMessagesProvider(ticketId));
                     } catch (e) {
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('关闭失败: $e')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t.pages.xlink.closeFailed}: $e')));
                       }
                     }
                   }
@@ -78,7 +80,7 @@ class TicketDetailPage extends HookConsumerWidget {
             child: messagesState.when(
               data: (messages) {
                 if (messages.isEmpty) {
-                  return const Center(child: Text('无消息记录'));
+                  return Center(child: Text(t.pages.xlink.noMessages));
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -128,7 +130,7 @@ class TicketDetailPage extends HookConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('加载失败: $err')),
+              error: (err, stack) => Center(child: Text('${t.pages.xlink.loadFailed}: $err')),
             ),
           ),
           if (!ticket.isClosed)
@@ -149,7 +151,7 @@ class TicketDetailPage extends HookConsumerWidget {
                     child: TextField(
                       controller: replyCtrl,
                       decoration: InputDecoration(
-                        hintText: '输入回复内容...',
+                        hintText: t.pages.xlink.replyHint,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
@@ -173,7 +175,7 @@ class TicketDetailPage extends HookConsumerWidget {
                         ref.invalidate(ticketListProvider);
                       } catch (e) {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('发送失败: $e')));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t.pages.xlink.sendFailed}: $e')));
                         }
                       } finally {
                         isReplying.value = false;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/traffic/data/traffic_data_providers.dart';
@@ -12,6 +13,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final t = ref.watch(translationsProvider).requireValue;
     final authState = ref.watch(authNotifierProvider);
     final user = authState is Authenticated ? authState.user : null;
     final trafficLogs = ref.watch(trafficLogsProvider);
@@ -31,7 +33,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '流量记录',
+          t.pages.xlink.trafficRecords,
           style: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'Space Grotesk',
             fontWeight: FontWeight.bold,
@@ -55,7 +57,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '当前流量使用',
+                      t.pages.xlink.currentUsage,
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const Gap(16),
@@ -83,7 +85,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
                         ),
                       ),
                     ] else
-                      const Text('无法获取用户数据'),
+                      Text(t.pages.xlink.noUserData),
                   ],
                 ),
               ),
@@ -99,7 +101,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
                       children: [
                         Icon(Icons.data_usage_outlined, size: 64, color: theme.colorScheme.outline),
                         const Gap(16),
-                        Text('暂无流量记录', style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.outline)),
+                        Text(t.pages.xlink.noTrafficRecords, style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.outline)),
                       ],
                     ),
                   ),
@@ -137,7 +139,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('上传', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                                      Text(t.pages.xlink.upload, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                                       const Gap(4),
                                       Text(formatBytes(log.u), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
                                     ],
@@ -145,7 +147,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('下载', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                                      Text(t.pages.xlink.download, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                                       const Gap(4),
                                       Text(formatBytes(log.d), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
                                     ],
@@ -153,7 +155,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('总计', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                                      Text(t.pages.xlink.total, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                                       const Gap(4),
                                       Text(formatBytes(log.u + log.d), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
                                     ],
@@ -171,7 +173,7 @@ class TrafficRecordsPage extends HookConsumerWidget {
               );
             },
             loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
-            error: (err, stack) => SliverFillRemaining(child: Center(child: Text('加载失败: $err'))),
+            error: (err, stack) => SliverFillRemaining(child: Center(child: Text('${t.pages.xlink.loadFailed}: $err'))),
           ),
           const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
         ],

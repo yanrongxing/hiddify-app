@@ -170,7 +170,7 @@ class HomeDataCard extends HookConsumerWidget {
                     Icon(Icons.bolt_rounded, color: theme.colorScheme.primary),
                     const Gap(8),
                     Text(
-                      isAuth ? '您还没有订阅套餐' : '未登录或无订阅',
+                      isAuth ? t.pages.xlink.noSubscription : t.pages.xlink.notLoggedIn,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: theme.colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
@@ -180,7 +180,7 @@ class HomeDataCard extends HookConsumerWidget {
                 ),
                 const Gap(8),
                 Text(
-                  isAuth ? '购买套餐后即可使用高速节点' : '请先登录，然后购买订阅套餐',
+                  isAuth ? t.pages.xlink.noSubscriptionHint : t.pages.xlink.notLoggedInHint,
                   style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const Gap(16),
@@ -198,7 +198,7 @@ class HomeDataCard extends HookConsumerWidget {
                         context.pushNamed('login');
                       }
                     },
-                    child: Text(isAuth ? '立即购买' : '前往登录'),
+                    child: Text(isAuth ? t.pages.xlink.buyNow : t.pages.xlink.goLogin),
                   ),
                 ),
               ],
@@ -213,7 +213,7 @@ class HomeDataCard extends HookConsumerWidget {
     final authUser = authState is Authenticated ? authState.user : null;
 
     // Plan name: prefer auth user's plan name (from API), fallback to profile sub info
-    final plan = authUser?.planName ?? (subInfo != null ? '订阅套餐' : '暂无套餐');
+    final plan = authUser?.planName ?? (subInfo != null ? t.pages.xlink.subscriptionShop : t.pages.xlink.noSubscription);
     final daysLeft = authUser?.expiredAt != null
         ? (DateTime.fromMillisecondsSinceEpoch(authUser!.expiredAt! * 1000).difference(DateTime.now()).inDays).clamp(0, 9999)
         : (subInfo != null && !subInfo.isExpired ? subInfo.remaining.inDays : 0);
@@ -315,7 +315,7 @@ class HomeDataCard extends HookConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Data Usage",
+                        t.pages.xlink.dataUsage,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                           fontSize: 14,
@@ -404,16 +404,16 @@ class HomeDataCard extends HookConsumerWidget {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: const Text('需要登录'),
-                            content: const Text('请先登录或注册后再更新订阅。'),
+                            title: Text(t.pages.xlink.needLogin),
+                            content: Text(t.pages.xlink.needLoginHint),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(false),
-                                child: const Text('取消'),
+                                child: Text(t.common.cancel),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(true),
-                                child: const Text('前往登录/注册'),
+                                child: Text(t.pages.xlink.goLogin),
                               ),
                             ],
                           );
@@ -430,16 +430,16 @@ class HomeDataCard extends HookConsumerWidget {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: const Text('无可用订阅'),
-                            content: const Text('您尚未订阅或订阅已过期，请前往购买订阅套餐。'),
+                            title: Text(t.pages.xlink.noActiveSubscription),
+                            content: Text(t.pages.xlink.noActiveSubscriptionHint),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(false),
-                                child: const Text('取消'),
+                                child: Text(t.common.cancel),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(true),
-                                child: const Text('前往订阅'),
+                                child: Text(t.pages.xlink.goSubscribe),
                               ),
                             ],
                           );

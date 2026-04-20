@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/subscription/notifier/shop_notifier.dart';
 import 'package:hiddify/features/subscription/widget/plan_card.dart';
@@ -11,12 +12,13 @@ class ShopPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final t = ref.watch(translationsProvider).requireValue;
     final plansAsync = ref.watch(shopNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "订阅套餐",
+          t.pages.xlink.subscriptionShop,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -28,7 +30,7 @@ class ShopPage extends HookConsumerWidget {
           if (plans.isEmpty) {
             return Center(
               child: Text(
-                '暂无可用套餐',
+                t.pages.xlink.noPlansAvailable,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -60,7 +62,7 @@ class ShopPage extends HookConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('加载失败', style: theme.textTheme.titleMedium),
+              Text(t.pages.xlink.loadFailed, style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               Text(
                 err.toString(),
@@ -70,7 +72,7 @@ class ShopPage extends HookConsumerWidget {
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () => ref.read(shopNotifierProvider.notifier).refresh(),
-                child: const Text('重试'),
+                child: Text(t.pages.xlink.retry),
               ),
             ],
           ),

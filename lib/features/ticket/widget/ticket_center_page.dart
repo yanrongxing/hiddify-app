@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/ticket/data/ticket_data_providers.dart';
 import 'package:hiddify/features/ticket/widget/ticket_create_sheet.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -11,12 +12,13 @@ class TicketCenterPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final t = ref.watch(translationsProvider).requireValue;
     final ticketsState = ref.watch(ticketListProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '工单中心',
+          t.pages.xlink.ticketCenter,
           style: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'Space Grotesk',
             fontWeight: FontWeight.bold,
@@ -33,7 +35,7 @@ class TicketCenterPage extends HookConsumerWidget {
                 children: [
                   Icon(Icons.inbox_outlined, size: 64, color: theme.colorScheme.outline),
                   const Gap(16),
-                  Text('暂无工单记录', style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.outline)),
+                  Text(t.pages.xlink.noTickets, style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.outline)),
                 ],
               ),
             );
@@ -54,13 +56,13 @@ class TicketCenterPage extends HookConsumerWidget {
                 String statusText;
                 if (ticket.status == 0) {
                   statusColor = Colors.amber;
-                  statusText = '待处理';
+                  statusText = t.pages.xlink.statusPending;
                 } else if (ticket.status == 1) {
                   statusColor = Colors.grey;
-                  statusText = '已关闭';
+                  statusText = t.pages.xlink.statusClosed;
                 } else {
                   statusColor = Colors.green;
-                  statusText = '已回复';
+                  statusText = t.pages.xlink.statusReplied;
                 }
 
                 return Card(
@@ -114,7 +116,7 @@ class TicketCenterPage extends HookConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('加载失败: $err')),
+        error: (err, stack) => Center(child: Text('${t.pages.xlink.loadFailed}: $err')),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -126,7 +128,7 @@ class TicketCenterPage extends HookConsumerWidget {
           );
         },
         icon: const Icon(Icons.add_rounded),
-        label: const Text('创建工单'),
+        label: Text(t.pages.xlink.createTicket),
       ),
     );
   }
