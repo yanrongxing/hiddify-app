@@ -40,11 +40,6 @@ class SettingsPage extends HookConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
     final authState = ref.watch(authNotifierProvider);
 
-    useEffect(() {
-      // Sync user info when entering personal center without full node sync
-      Future.microtask(() => ref.read(authNotifierProvider.notifier).refreshUserInfo());
-      return null;
-    }, []);
 
     final isAuthenticated = authState is Authenticated;
     final user = isAuthenticated ? authState.user : null;
@@ -59,6 +54,12 @@ class SettingsPage extends HookConsumerWidget {
         ),
         centerTitle: true,
         actions: [
+          if (isAuthenticated)
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded),
+              tooltip: 'Refresh',
+              onPressed: () => ref.read(authNotifierProvider.notifier).refreshFullProfile(),
+            ),
           IconButton(
             icon: const Icon(Icons.translate_rounded),
             onPressed: () async {

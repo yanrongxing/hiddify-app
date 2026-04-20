@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
+import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hiddify/features/auth/data/auth_data_providers.dart';
 import 'package:hiddify/features/auth/data/auth_repository.dart';
@@ -24,6 +25,7 @@ const _kSessionId = 'xlink_session_id';
 @Riverpod(keepAlive: true)
 class AuthNotifier extends _$AuthNotifier with AppLogger {
   late AuthRepository _authRepo;
+  DateTime? _lastCheckTime;
 
   @override
   AuthState build() {
@@ -37,8 +39,8 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       if (token != null && token.isNotEmpty && email != null) {
         _authRepo.setAuthToken(token);
         // Return authenticated with minimal info; then async-refresh
-        // full subscription details in the background.
-        Future.microtask(() => refreshSubscribeInfo());
+        // subscription details in the background.
+        Future.microtask(() => checkSubscriptionStatus());
         return AuthState.authenticated(
           user: UserModel(email: email),
           authToken: token,
@@ -56,6 +58,17 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       await profileRepo.deleteAll().run();
     } catch (e) {
       loggy.error('Failed to clear profiles', e);
+    }
+  }
+
+  /// Force disconnect VPN when subscription state requires it.
+  Future<void> _forceDisconnect() async {
+    try {
+      final connectionNotifier = ref.read(connectionNotifierProvider.notifier);
+      await connectionNotifier.abortConnection();
+      loggy.info('Force disconnected VPN due to subscription state change');
+    } catch (e) {
+      loggy.error('Failed to force disconnect VPN', e);
     }
   }
 
@@ -117,8 +130,8 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       );
 
       // Auto-sync subscription after login.
-      await _syncSubscription(result.token);
-      await refreshSubscribeInfo();
+      await checkSubscriptionStatus(force: true);
+      await _syncNodes(result.token);
     } on AuthException catch (e) {
       state = AuthState.error(message: e.message);
     } catch (e, st) {
@@ -152,8 +165,8 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       );
 
       // Auto-sync subscription after registration.
-      await _syncSubscription(result.token);
-      await refreshSubscribeInfo();
+      await checkSubscriptionStatus(force: true);
+      await _syncNodes(result.token);
     } on AuthException catch (e) {
       state = AuthState.error(message: e.message);
     } catch (e, st) {
@@ -175,7 +188,7 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
     state = const AuthState.unauthenticated();
   }
 
-  /// Refresh user info from the API.
+  /// Refresh user info from the API (used internally, prefer refreshFullProfile for UI).
   Future<void> refreshUserInfo() async {
     final current = state;
     if (current is! Authenticated) return;
@@ -185,79 +198,156 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
         user: updatedUser,
         authToken: current.authToken,
       );
-      await refreshSubscribeInfo();
     } on AuthException catch (e) {
       loggy.warning('Failed to refresh user info: ${e.message}');
       await _handleAuthException(e);
     }
   }
 
-  /// Sync subscription from Xboard and import into Hiddify's profile system.
-  Future<void> _syncSubscription(String token) async {
+  /// Fetch subscribe URL and import profile into Hiddify's profile system.
+  Future<void> _syncNodes(String token) async {
     try {
       final subscribeUrl = await _authRepo.getSubscribeUrl();
       if (subscribeUrl.isNotEmpty) {
-        loggy.info('Auto-syncing subscription: $subscribeUrl');
-        final profileRepo =
-            await ref.read(profileRepositoryProvider.future);
+        loggy.info('Syncing nodes from: $subscribeUrl');
+        final profileRepo = await ref.read(profileRepositoryProvider.future);
         await profileRepo
             .upsertRemote(subscribeUrl)
             .run()
             .then((result) => result.fold(
-                  (failure) => loggy.error(
-                      'Failed to sync subscription profile: $failure'),
-                  (_) => loggy.info('Subscription profile synced successfully'),
+                  (failure) => loggy.error('Failed to sync nodes: $failure'),
+                  (_) => loggy.info('Nodes synced successfully'),
                 ));
       }
     } catch (e, st) {
-      loggy.error('Failed to sync subscription', e, st);
+      loggy.error('Failed to sync nodes', e, st);
       if (e is AuthException) {
         await _handleAuthException(e);
       }
     }
   }
 
-  /// Manually trigger subscription sync (e.g. from UI refresh button).
-  Future<void> syncSubscription() async {
+  /// Force sync nodes from UI (home page sync button).
+  /// Always checks status AND syncs nodes regardless of diff.
+  Future<void> forceNodeSync() async {
     final current = state;
     if (current is! Authenticated) return;
 
-    // Refresh user info and subscription info
-    await refreshUserInfo();
-    await _syncSubscription(current.authToken);
+    await checkSubscriptionStatus(force: true);
+    await _syncNodes(current.authToken);
   }
 
-  /// Fetch subscription details and update UserModel.
-  Future<void> refreshSubscribeInfo() async {
+  /// Full profile refresh (personal center refresh button).
+  /// Fetches complete user info (including balance) + checks subscription status.
+  Future<void> refreshFullProfile() async {
     final current = state;
     if (current is! Authenticated) return;
     try {
-      final info = await _authRepo.getSubscribeInfo();
-      // Extract plan name from nested plan object if available
-      final planMap = info['plan'] as Map<String, dynamic>?;
-      final planName = planMap?['name'] as String?;
-      final updatedUser = current.user.copyWith(
-        planId: info['plan_id'] as int?,
-        planName: planName,
-        u: info['u'] as int? ?? 0,
-        d: info['d'] as int? ?? 0,
-        transferEnable: info['transfer_enable'] as int? ?? 0,
-        expiredAt: info['expired_at'] as int?,
-        subscribeUrl: info['subscribe_url'] as String?,
-        deviceLimit: info['device_limit'] as int?,
-        canConnectVpn: info['can_connect_vpn'] as bool? ?? true,
+      final updatedUser = await _authRepo.getUserInfo();
+      state = AuthState.authenticated(
+        user: updatedUser,
+        authToken: current.authToken,
       );
-      final previouslyHadNoPlan = current.user.planId == null;
+      await checkSubscriptionStatus(force: true);
+    } on AuthException catch (e) {
+      loggy.warning('Failed to refresh full profile: ${e.message}');
+      await _handleAuthException(e);
+    }
+  }
+
+  /// Unified entry point for checking subscription status.
+  /// Calls getSubscribeInfo (1 API call), diffs against cached state,
+  /// and conditionally triggers node sync / VPN disconnect / profile clearing.
+  ///
+  /// [force] bypasses 30-second deduplication.
+  Future<void> checkSubscriptionStatus({bool force = false}) async {
+    final current = state;
+    if (current is! Authenticated) return;
+
+    // 30-second deduplication
+    if (!force && _lastCheckTime != null) {
+      final elapsed = DateTime.now().difference(_lastCheckTime!);
+      if (elapsed.inSeconds < 30) {
+        loggy.debug('Skipping subscription check, last check was ${elapsed.inSeconds}s ago');
+        return;
+      }
+    }
+    _lastCheckTime = DateTime.now();
+
+    try {
+      final info = await _authRepo.getSubscribeInfo();
+
+      // Extract new values
+      final planMap = info['plan'] as Map<String, dynamic>?;
+      final newPlanName = planMap?['name'] as String?;
+      final newPlanId = info['plan_id'] as int?;
+      final newSubscribeUrl = info['subscribe_url'] as String?;
+      final newCanConnect = info['can_connect_vpn'] as bool? ?? true;
+      final newU = info['u'] as int? ?? 0;
+      final newD = info['d'] as int? ?? 0;
+      final newTransferEnable = info['transfer_enable'] as int? ?? 0;
+      final newExpiredAt = info['expired_at'] as int?;
+      final newDeviceLimit = info['device_limit'] as int?;
+
+      // Compute diff against current state
+      final oldUser = current.user;
+      final planChanged = oldUser.planId != newPlanId;
+      final urlChanged = oldUser.subscribeUrl != newSubscribeUrl;
+      final planRemoved = oldUser.planId != null && newPlanId == null;
+      final planAdded = oldUser.planId == null && newPlanId != null;
+      final connectBecameFalse = oldUser.canConnectVpn && !newCanConnect;
+      final connectRestored = !oldUser.canConnectVpn && newCanConnect;
+      final deviceLimitDecreased = oldUser.deviceLimit != null &&
+          newDeviceLimit != null &&
+          newDeviceLimit < oldUser.deviceLimit!;
+
+      // Update state (triggers all UI reactivity)
+      final updatedUser = current.user.copyWith(
+        planId: newPlanId,
+        planName: newPlanName,
+        u: newU,
+        d: newD,
+        transferEnable: newTransferEnable,
+        expiredAt: newExpiredAt,
+        subscribeUrl: newSubscribeUrl,
+        deviceLimit: newDeviceLimit,
+        canConnectVpn: newCanConnect,
+      );
       state = AuthState.authenticated(user: updatedUser, authToken: current.authToken);
 
-      if (updatedUser.planId == null) {
+      // Decision: clear profiles
+      if (planRemoved) {
+        loggy.info('Plan removed, clearing profiles and disconnecting');
         await _clearAllProfiles();
-      } else if (previouslyHadNoPlan) {
-        // User just bought a plan, auto-sync to fetch nodes
-        await _syncSubscription(current.authToken);
+        await _forceDisconnect();
+        return;
+      }
+
+      // Decision: force disconnect (device limit / traffic exceeded / banned)
+      // Also covers device limit decrease — when limit shrinks and this device
+      // is now over-limit, backend returns can_connect_vpn=false in the same response.
+      if (connectBecameFalse) {
+        loggy.info('can_connect_vpn became false, force disconnecting');
+        await _forceDisconnect();
+        return;
+      }
+
+      // Decision: device limit decreased but this device is still within limit
+      // (can_connect_vpn is still true). Just log it — UI already updated above.
+      if (deviceLimitDecreased && newCanConnect) {
+        loggy.info('Device limit decreased from ${oldUser.deviceLimit} to $newDeviceLimit, '
+            'but current device is still within limit');
+      }
+
+      // Decision: sync nodes (plan changed, URL changed, plan added, or connect restored with plan)
+      final needsNodeSync = planChanged || urlChanged || planAdded ||
+          (connectRestored && newPlanId != null);
+      if (needsNodeSync) {
+        loggy.info('Subscription changed (plan=$planChanged, url=$urlChanged, added=$planAdded, restored=$connectRestored), syncing nodes');
+        await _syncNodes(current.authToken);
       }
     } on AuthException catch (e) {
-      loggy.warning('Failed to refresh subscribe info: ${e.message}');
+      loggy.warning('Failed to check subscription status: ${e.message}');
       await _handleAuthException(e);
     }
   }
@@ -292,6 +382,7 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
         msg.contains('未登录') ||
         msg.contains('过期')) {
       loggy.info('Token expired or invalid. Forcing logout...');
+      await _forceDisconnect();
       await logout();
 
       final context = rootNavKey.currentContext;

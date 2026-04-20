@@ -32,19 +32,16 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Check subscription status when app resumes from background
     final lifecycleState = useAppLifecycleState();
-
     useEffect(() {
       if (lifecycleState == AppLifecycleState.resumed) {
-        ref.read(authNotifierProvider.notifier).refreshUserInfo();
+        ref.read(authNotifierProvider.notifier).checkSubscriptionStatus();
       }
       return null;
     }, [lifecycleState]);
 
     useEffect(() {
-      // Refresh user info when home page mounts
-      Future.microtask(() => ref.read(authNotifierProvider.notifier).refreshUserInfo());
-      
       print('[HOME_UPDATE] useEffect triggered, will check in 2s');
       Future.delayed(const Duration(seconds: 2), () async {
         print('[HOME_UPDATE] delay finished, calling check()...');
@@ -119,7 +116,7 @@ class HomePage extends HookConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle, color: theme.colorScheme.onSurface, size: 28),
-            onPressed: () => context.push('/settings').then((_) => ref.read(authNotifierProvider.notifier).refreshUserInfo()),
+            onPressed: () => context.push('/settings'),
           ),
           const Gap(8),
         ],
@@ -257,15 +254,15 @@ class HomeDataCard extends HookConsumerWidget {
                   child: FilledButton(
                     onPressed: () {
                       if (isOverLimit) {
-                        context.pushNamed('deviceManage').then((_) => ref.read(authNotifierProvider.notifier).refreshUserInfo());
+                        context.pushNamed('deviceManage');
                       } else if (isAuth) {
                         if (FeatureFlags.enableSubscriptionShop) {
-                          context.pushNamed('shop').then((_) => ref.read(authNotifierProvider.notifier).refreshUserInfo());
+                          context.pushNamed('shop');
                         } else {
                           UriUtils.tryLaunch(Uri.parse(Constants.shopUrl));
                         }
                       } else {
-                        context.pushNamed('login').then((_) => ref.read(authNotifierProvider.notifier).refreshUserInfo());
+                        context.pushNamed('login');
                       }
                     },
                     style: isOverLimit 
@@ -499,44 +496,8 @@ class HomeDataCard extends HookConsumerWidget {
                       return;
                     }
 
-                    // Always sync subscription state and data
-                    await ref.read(authNotifierProvider.notifier).syncSubscription();
-
-                    final p = ref.read(activeProfileProvider).valueOrNull;
-                    if (p == null) {
-                      if (!context.mounted) return;
-                      final shouldSubscribe = await showDialog<bool>(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text(t.pages.xlink.noActiveSubscription),
-                            content: Text(t.pages.xlink.noActiveSubscriptionHint),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(false),
-                                child: Text(t.common.cancel),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(true),
-                                child: Text(t.pages.xlink.goSubscribe),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                      if (shouldSubscribe == true && context.mounted) {
-                        if (FeatureFlags.enableSubscriptionShop) {
-                          context.pushNamed('shop');
-                        } else {
-                          UriUtils.tryLaunch(Uri.parse(Constants.shopUrl));
-                        }
-                      }
-                      return;
-                    }
-
-                    if (p is RemoteProfileEntity) {
-                      ref.read(updateProfileNotifierProvider(p.id).notifier).updateProfile(p);
-                    }
+                    // Force sync nodes (checks status + always updates nodes)
+                    await ref.read(authNotifierProvider.notifier).forceNodeSync();
                   },
                 ),
               ),

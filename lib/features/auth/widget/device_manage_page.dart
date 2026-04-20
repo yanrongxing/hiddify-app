@@ -20,7 +20,6 @@ class DeviceManagePage extends HookConsumerWidget {
     useEffect(() {
       Future.microtask(() {
         ref.read(sessionNotifierProvider.notifier).refresh();
-        ref.read(authNotifierProvider.notifier).refreshSubscribeInfo();
       });
       return null;
     }, []);
@@ -46,11 +45,7 @@ class DeviceManagePage extends HookConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(sessionNotifierProvider.notifier).refresh();
-          await ref.read(authNotifierProvider.notifier).refreshSubscribeInfo();
-          final authState = ref.read(authNotifierProvider);
-          if (authState is Authenticated && authState.user.canConnectVpn) {
-            await ref.read(authNotifierProvider.notifier).syncSubscription();
-          }
+          await ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true);
         },
         child: sessionsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -312,12 +307,8 @@ class _SessionGroup extends StatelessWidget {
                     if (confirmed == true) {
                       final success = await ref.read(sessionNotifierProvider.notifier).removeSession(session.id);
                       if (success) {
-                        // Refresh subscription to get updated can_connect_vpn status
-                        await ref.read(authNotifierProvider.notifier).refreshSubscribeInfo();
-                        final authState = ref.read(authNotifierProvider);
-                        if (authState is Authenticated && authState.user.canConnectVpn) {
-                          ref.read(authNotifierProvider.notifier).syncSubscription();
-                        }
+                        // Check subscription status to detect can_connect_vpn restoration
+                        await ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true);
                       }
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(

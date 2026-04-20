@@ -131,9 +131,7 @@ class OrderDetailNotifier extends _$OrderDetailNotifier {
   }
 
   void _onPaymentSuccess() {
-    // Sync subscription and refresh info
-    ref.read(authNotifierProvider.notifier).syncSubscription();
-    // Assuming refreshSubscribeInfo will be added in Task 8
-    // ref.read(authNotifierProvider.notifier).refreshSubscribeInfo();
+    // Check subscription status — diff will detect plan change and auto-sync nodes
+    ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true);
   }
 }
