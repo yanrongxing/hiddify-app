@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/auth/widget/forgot_password_page.dart';
@@ -17,6 +18,7 @@ class LoginPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final authState = ref.watch(authNotifierProvider);
+    final t = ref.watch(translationsProvider).requireValue;
 
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
@@ -80,14 +82,14 @@ class LoginPage extends HookConsumerWidget {
 
                   // Title
                   Text(
-                    '欢迎回来',
+                    t.pages.auth.login.title,
                     style: theme.textTheme.headlineLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const Gap(6),
                   Text(
-                    '登录您的账户以继续',
+                    t.pages.auth.login.subtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -101,8 +103,8 @@ class LoginPage extends HookConsumerWidget {
                     textInputAction: TextInputAction.next,
                     enabled: !isLoading,
                     decoration: InputDecoration(
-                      labelText: '邮箱地址',
-                      hintText: 'your@email.com',
+                      labelText: t.pages.auth.login.emailLabel,
+                      hintText: t.pages.auth.login.emailHint,
                       prefixIcon: const Icon(Icons.email_outlined),
                       filled: true,
                       fillColor: theme.colorScheme.surfaceContainerLow,
@@ -127,10 +129,10 @@ class LoginPage extends HookConsumerWidget {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return '请输入邮箱地址';
+                        return t.pages.auth.login.emailRequired;
                       }
                       if (!value.contains('@')) {
-                        return '请输入有效的邮箱地址';
+                        return t.pages.auth.login.emailInvalid;
                       }
                       return null;
                     },
@@ -144,7 +146,7 @@ class LoginPage extends HookConsumerWidget {
                     textInputAction: TextInputAction.done,
                     enabled: !isLoading,
                     decoration: InputDecoration(
-                      labelText: '密码',
+                      labelText: t.pages.auth.login.passwordLabel,
                       prefixIcon: const Icon(Icons.key_outlined),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -178,10 +180,10 @@ class LoginPage extends HookConsumerWidget {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return '请输入密码';
+                        return t.pages.auth.login.passwordRequired;
                       }
                       if (value.length < 6) {
-                        return '密码至少6位';
+                        return t.pages.auth.login.passwordTooShort;
                       }
                       return null;
                     },
@@ -205,7 +207,7 @@ class LoginPage extends HookConsumerWidget {
                                   builder: (_) => const ForgotPasswordPage(),
                                 ),
                               ),
-                      child: const Text('忘记密码？'),
+                      child: Text(t.pages.auth.login.forgotPassword),
                     ),
                   ),
                   const Gap(20),
@@ -218,7 +220,7 @@ class LoginPage extends HookConsumerWidget {
                       emailController.text,
                       passwordController.text,
                     ),
-                    label: '登录',
+                    label: t.pages.auth.login.loginButton,
                     icon: Icons.arrow_forward,
                     isLoading: isLoading,
                   ),
@@ -229,7 +231,7 @@ class LoginPage extends HookConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '还没有账户？',
+                        t.pages.auth.login.noAccount,
                         style: theme.textTheme.bodyMedium,
                       ),
                       TextButton(
@@ -240,7 +242,7 @@ class LoginPage extends HookConsumerWidget {
                                     builder: (_) => const RegisterPage(),
                                   ),
                                 ),
-                        child: const Text('立即注册'),
+                        child: Text(t.pages.auth.login.registerNow),
                       ),
                     ],
                   ),
