@@ -1,9 +1,15 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:hiddify/core/haptic/haptic_service.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
+import 'package:hiddify/features/auth/model/auth_state.dart';
+import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
+import 'package:hiddify/features/auth/notifier/session_notifier.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hiddify/features/connection/data/connection_data_providers.dart';
 import 'package:hiddify/features/connection/data/connection_repository.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
@@ -136,6 +142,45 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   }
 
   Future<void> _connectThrottled() async {
+    // --- Device limit check ---
+    final authState = ref.read(authNotifierProvider);
+    if (authState is Authenticated) {
+      if (!authState.user.canConnectVpn) {
+        final context = rootNavKey.currentContext;
+        if (context != null && context.mounted) {
+          final t = ref.read(translationsProvider).requireValue;
+          final result = await showDialog<bool>(
+            context: context,
+            builder: (dialogContext) => AlertDialog(
+              title: Text(t.pages.xlink.deviceLimitReached),
+              content: Text(t.pages.xlink.deviceLimitDialogHint),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext, true);
+                  },
+                  child: Text(t.pages.xlink.deviceManagement),
+                ),
+              ],
+            ),
+          );
+
+          if (result == true && context.mounted) {
+            // Use GoRouter to navigate to device management page
+            GoRouter.of(context).pushNamed('deviceManage');
+          }
+
+          loggy.info('Device limit (backend restricted), preventing connection');
+          return;
+        }
+      }
+    }
+    // --- End device limit check ---
+
     final activeProfile = await ref.read(activeProfileProvider.future);
     if (activeProfile == null) {
       loggy.info("no active profile, not connecting");

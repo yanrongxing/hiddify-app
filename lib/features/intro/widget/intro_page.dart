@@ -42,7 +42,6 @@ class IntroPage extends HookConsumerWidget with PresLogger {
     final isStarting = useState(false);
 
     if (!locationInfoLoaded) {
-      autoSelectRegion(ref).then((value) => loggy.debug("Auto Region selection finished!"));
       locationInfoLoaded = true;
     }
 
@@ -110,7 +109,7 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                       await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
                     },
                   ),
-                  const EnableAnalyticsPrefTile(),
+
                   const Gap(24),
                   Focus(
                     focusNode: focusNodes[IntroConst.termsAndConditionsKey],
@@ -131,36 +130,7 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                       style: theme.textTheme.bodySmall,
                     ),
                   ),
-                  const Gap(8),
-                  Focus(
-                    focusNode: focusNodes[IntroConst.githubKey],
-                    onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.githubKey),
-                    child: Text.rich(
-                      t.intro.info(
-                        tap_source: (text) => TextSpan(
-                          text: text,
-                          style: TextStyle(
-                            color: focusStates[IntroConst.githubKey]!.value ? Colors.green : Colors.blue,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
-                            },
-                        ),
-                        tap_license: (text) => TextSpan(
-                          text: text,
-                          style: TextStyle(
-                            color: focusStates[IntroConst.githubKey]!.value ? Colors.green : Colors.blue,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              await UriUtils.tryLaunch(Uri.parse(Constants.licenseUrl));
-                            },
-                        ),
-                      ),
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ),
+
                   // only for managing license node focus
                   Focus(
                     focusNode: focusNodes[IntroConst.licenseKey],

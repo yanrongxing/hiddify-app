@@ -1,14 +1,17 @@
 import 'dart:async';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/features/auth/data/auth_data_providers.dart';
 import 'package:hiddify/features/auth/data/auth_repository.dart';
 import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/auth/widget/gradient_button.dart';
+import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class RegisterPage extends HookConsumerWidget {
@@ -158,11 +161,23 @@ class RegisterPage extends HookConsumerWidget {
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   SizedBox(width: 24, height: 24, child: Checkbox(value: tosAccepted.value, onChanged: (v) => tosAccepted.value = v ?? false, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)))),
                   const SizedBox(width: 8),
-                  Expanded(child: GestureDetector(onTap: () => tosAccepted.value = !tosAccepted.value, child: Text.rich(TextSpan(text: tr.tosPrefix, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant), children: [
-                    TextSpan(text: tr.tosTerms, style: TextStyle(color: theme.colorScheme.primary, decoration: TextDecoration.underline)),
+                  Expanded(child: Text.rich(TextSpan(text: tr.tosPrefix, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant), children: [
+                    TextSpan(
+                      text: tr.tosTerms,
+                      style: TextStyle(color: theme.colorScheme.primary, decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()..onTap = () async {
+                        await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
+                      },
+                    ),
                     TextSpan(text: tr.tosAnd),
-                    TextSpan(text: tr.tosPrivacy, style: TextStyle(color: theme.colorScheme.primary, decoration: TextDecoration.underline)),
-                  ])))),
+                    TextSpan(
+                      text: tr.tosPrivacy,
+                      style: TextStyle(color: theme.colorScheme.primary, decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()..onTap = () async {
+                        await UriUtils.tryLaunch(Uri.parse(Constants.privacyPolicyUrl));
+                      },
+                    ),
+                  ]))),
                 ]),
                 const Gap(24),
 

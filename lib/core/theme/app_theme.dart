@@ -84,10 +84,10 @@ const _kineticEtherDarkScheme = ColorScheme(
   onTertiaryContainer: Color(0xFFeaddff),
 
   // ── Error ────────────────────────────────────────────────────────────
-  error: Color(0xFFffb4ab),
-  onError: Color(0xFF690005),
-  errorContainer: Color(0xFF93000a),
-  onErrorContainer: Color(0xFFffdad6),
+  error: Color(0xFFE53935),
+  onError: Color(0xFFFFFFFF),
+  errorContainer: Color(0xFF8C1D18),
+  onErrorContainer: Color(0xFFFFFFFF),
 
   // ── Surface hierarchy (Obsidian tonal layers) ────────────────────────
   surface: Color(0xFF131313), // background / base layer

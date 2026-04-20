@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:hiddify/features/auth/model/session_model.dart';
 import 'package:hiddify/features/auth/model/user_model.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 
@@ -66,9 +67,10 @@ class AuthRepository with InfraLogger {
   ///
   /// Returns the auth token on success.
   /// POST /api/v1/passport/auth/login
-  Future<({String token, UserModel user})> login({
+  Future<({String token, UserModel user, int? sessionId})> login({
     required String email,
     required String password,
+    required Map<String, dynamic> deviceInfo,
   }) async {
     try {
       final response = await _dio.post(
@@ -76,18 +78,20 @@ class AuthRepository with InfraLogger {
         data: {
           'email': email,
           'password': password,
+          ...deviceInfo,
         },
       );
 
       final data = response.data['data'] as Map<String, dynamic>;
       final token = data['auth_data'] as String;
+      final sessionId = data['session_id'] as int?;
 
       setAuthToken(token);
 
       // Fetch user info after login
       final user = await getUserInfo();
 
-      return (token: token, user: user);
+      return (token: token, user: user, sessionId: sessionId);
     } on DioException catch (e) {
       loggy.error('Login failed', e);
       final message = _extractErrorMessage(e);
@@ -98,16 +102,18 @@ class AuthRepository with InfraLogger {
   /// Register a new account.
   ///
   /// POST /api/v1/passport/auth/register
-  Future<({String token, UserModel user})> register({
+  Future<({String token, UserModel user, int? sessionId})> register({
     required String email,
     required String password,
     String? inviteCode,
     String? emailCode,
+    required Map<String, dynamic> deviceInfo,
   }) async {
     try {
       final body = <String, dynamic>{
         'email': email,
         'password': password,
+        ...deviceInfo,
       };
       if (inviteCode != null && inviteCode.isNotEmpty) {
         body['invite_code'] = inviteCode;
@@ -123,11 +129,12 @@ class AuthRepository with InfraLogger {
 
       final data = response.data['data'] as Map<String, dynamic>;
       final token = data['auth_data'] as String;
+      final sessionId = data['session_id'] as int?;
 
       setAuthToken(token);
       final user = await getUserInfo();
 
-      return (token: token, user: user);
+      return (token: token, user: user, sessionId: sessionId);
     } on DioException catch (e) {
       loggy.error('Register failed', e);
       final message = _extractErrorMessage(e);
@@ -233,16 +240,56 @@ class AuthRepository with InfraLogger {
     }
   }
 
+  /// Get all active sessions (tokens) for the current user.
+  ///
+  /// GET /api/v1/user/getActiveSession
+  Future<List<SessionModel>> getActiveSessions() async {
+    try {
+      final response = await _dio.get('/api/v1/user/getActiveSession');
+      final list = response.data['data'] as List<dynamic>;
+      return list
+          .map((e) => SessionModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      loggy.error('Get active sessions failed', e);
+      final message = _extractErrorMessage(e);
+      throw AuthException(message);
+    }
+  }
+
+  /// Remove a specific session (force logout a device).
+  ///
+  /// POST /api/v1/user/removeActiveSession
+  Future<bool> removeActiveSession(int sessionId) async {
+    try {
+      await _dio.post(
+        '/api/v1/user/removeActiveSession',
+        data: {'session_id': sessionId.toString()},
+      );
+      return true;
+    } on DioException catch (e) {
+      loggy.error('Remove active session failed', e);
+      final message = _extractErrorMessage(e);
+      throw AuthException(message);
+    }
+  }
+
   /// Logout (client-side only — clear token).
   void logout() {
     clearAuthToken();
   }
 
   String _extractErrorMessage(DioException e) {
+    String prefix = '';
+    final statusCode = e.response?.statusCode;
+    if (statusCode != null) {
+      prefix = '[HTTP $statusCode] ';
+    }
     if (e.response?.data is Map) {
       final msg = (e.response!.data as Map)['message'];
-      if (msg is String && msg.isNotEmpty) return msg;
+      if (msg is String && msg.isNotEmpty) return '$prefix$msg';
     }
+    if (statusCode != null) return '${prefix}Request failed';
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:

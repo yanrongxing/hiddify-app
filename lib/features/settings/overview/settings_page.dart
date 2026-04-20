@@ -15,6 +15,7 @@ import 'package:hiddify/utils/utils.dart';
 import 'package:hiddify/core/localization/locale_preferences.dart';
 import 'package:hiddify/core/localization/locale_extensions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 enum ConfigOptionSection {
   warp,
@@ -36,7 +37,14 @@ class SettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final authState = ref.watch(authNotifierProvider);
+
+    useEffect(() {
+      // Sync user info when entering personal center without full node sync
+      Future.microtask(() => ref.read(authNotifierProvider.notifier).refreshUserInfo());
+      return null;
+    }, []);
 
     final isAuthenticated = authState is Authenticated;
     final user = isAuthenticated ? authState.user : null;
@@ -79,9 +87,9 @@ class SettingsPage extends HookConsumerWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerLow,
+              color: isDark ? theme.colorScheme.surfaceContainerLow : theme.colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
+              border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.15 : 0.2)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,9 +167,9 @@ class SettingsPage extends HookConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: isDark ? 0.5 : 0.3),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+                        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.2 : 0.3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +221,7 @@ class SettingsPage extends HookConsumerWidget {
                           const Gap(8),
                           LinearProgressIndicator(
                             value: user.transferEnable > 0 ? (user.u + user.d) / user.transferEnable : 0,
-                            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                            backgroundColor: isDark ? theme.colorScheme.surfaceContainerHighest : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ],
@@ -280,7 +288,7 @@ class SettingsPage extends HookConsumerWidget {
                   title: t.pages.xlink.subscriptionShop,
                   onTap: () => context.pushNamed('shop'),
                 ),
-              _MenuItem(icon: Icons.qr_code_scanner_rounded, title: t.pages.xlink.scanQrCode, onTap: () {}),
+
               _MenuItem(
                 icon: Icons.share_rounded,
                 title: t.pages.share.title,
@@ -296,8 +304,14 @@ class SettingsPage extends HookConsumerWidget {
                 icon: Icons.local_activity_rounded,
                 title: t.pages.xlink.coupons,
                 onTap: () {},
-                showBorder: false,
               ),
+              if (isAuthenticated)
+                _MenuItem(
+                  icon: Icons.devices_rounded,
+                  title: t.pages.xlink.deviceManagement,
+                  onTap: () => context.pushNamed('deviceManage'),
+                  showBorder: false,
+                ),
             ],
           ),
           const Gap(16),
@@ -352,7 +366,11 @@ class SettingsPage extends HookConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 8)),
+                  BoxShadow(
+                    color: isDark ? Colors.black.withValues(alpha: 0.5) : theme.shadowColor.withValues(alpha: 0.1),
+                    blurRadius: isDark ? 30 : 20,
+                    offset: isDark ? const Offset(0, 8) : const Offset(0, 4),
+                  ),
                 ],
               ),
               child: Material(
@@ -393,12 +411,19 @@ class _MenuGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 8))],
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.5) : theme.shadowColor.withValues(alpha: 0.1),
+            blurRadius: isDark ? 30 : 20,
+            offset: isDark ? const Offset(0, 8) : const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(children: children),
     );
@@ -549,6 +574,11 @@ class AdvancedSettingsPage extends HookConsumerWidget {
                   onTap: () => context.go(context.namedLocation('logs')),
                 ),
               ],
+              _MenuItem(
+                icon: Icons.rocket_launch_rounded,
+                title: '引导页调试 (Intro Page)',
+                onTap: () => context.push('/intro?debug=true'),
+              ),
               _MenuItem(
                 icon: Icons.warning_amber_rounded,
                 title: t.pages.settings.resetTunnel,

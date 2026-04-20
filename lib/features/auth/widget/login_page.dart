@@ -1,13 +1,14 @@
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/auth/widget/forgot_password_page.dart';
 import 'package:hiddify/features/auth/widget/gradient_button.dart';
 import 'package:hiddify/features/auth/widget/register_page.dart';
+import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 
@@ -61,22 +62,10 @@ class LoginPage extends HookConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Shield icon
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: theme.colorScheme.surfaceContainerLow,
-                      border: Border.all(
-                        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.shield,
-                      size: 32,
-                      color: theme.colorScheme.primary,
-                    ),
+                  // App logo
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Assets.images.logo.svg(width: 64, height: 64),
                   ),
                   const Gap(20),
 

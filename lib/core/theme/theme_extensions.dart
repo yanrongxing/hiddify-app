@@ -13,7 +13,7 @@ class ConnectionButtonTheme extends ThemeExtension<ConnectionButtonTheme> {
 
   /// Light variant – Kinetic Aperture
   static const ConnectionButtonTheme light = ConnectionButtonTheme(
-    idleColor: Color(0xFFbcc9c4),      // outline-variant
+    idleColor: Color(0xFF6f7975),      // outline
     connectedColor: Color(0xFF006858), // primary
   );
 

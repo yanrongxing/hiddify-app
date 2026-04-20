@@ -1,4 +1,11 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
+import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
+import 'package:uuid/uuid.dart';
 import 'package:hiddify/features/auth/data/auth_data_providers.dart';
 import 'package:hiddify/features/auth/data/auth_repository.dart';
 import 'package:hiddify/features/auth/model/auth_state.dart';
@@ -12,6 +19,7 @@ part 'auth_notifier.g.dart';
 /// Keys for persisting auth data in SharedPreferences.
 const _kAuthToken = 'xlink_auth_token';
 const _kUserEmail = 'xlink_user_email';
+const _kSessionId = 'xlink_session_id';
 
 @Riverpod(keepAlive: true)
 class AuthNotifier extends _$AuthNotifier with AppLogger {
@@ -51,15 +59,58 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
     }
   }
 
+  Future<Map<String, dynamic>> _getDeviceInfo() async {
+    final prefs = ref.read(sharedPreferencesProvider).requireValue;
+    String? deviceId = prefs.getString('app_device_id');
+    if (deviceId == null) {
+      deviceId = const Uuid().v4();
+      await prefs.setString('app_device_id', deviceId);
+    }
+    String deviceName = Platform.localHostname;
+    try {
+      final deviceInfoPlugin = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfoPlugin.androidInfo;
+        deviceName = '${androidInfo.brand} ${androidInfo.model}'.trim();
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfoPlugin.iosInfo;
+        deviceName = iosInfo.name;
+      } else if (Platform.isWindows) {
+        final windowsInfo = await deviceInfoPlugin.windowsInfo;
+        deviceName = windowsInfo.computerName;
+      } else if (Platform.isMacOS) {
+        final macOsInfo = await deviceInfoPlugin.macOsInfo;
+        deviceName = macOsInfo.computerName;
+      } else if (Platform.isLinux) {
+        final linuxInfo = await deviceInfoPlugin.linuxInfo;
+        deviceName = linuxInfo.prettyName;
+      }
+    } catch (_) {}
+
+    if (deviceName.isEmpty || deviceName == 'localhost') {
+      deviceName = '${Platform.operatingSystem} device';
+    }
+
+    return {
+      'is_app': true,
+      'device_id': deviceId,
+      'device_name': deviceName,
+      'device_type': Platform.operatingSystem,
+    };
+  }
+
   /// Login with email and password.
   Future<void> login(String email, String password) async {
     state = const AuthState.loading();
     try {
+      final deviceInfo = await _getDeviceInfo();
       final result = await _authRepo.login(
         email: email,
         password: password,
+        deviceInfo: deviceInfo,
       );
       await _persistAuth(result.token, result.user.email);
+      await _persistSessionId(result.sessionId);
       state = AuthState.authenticated(
         user: result.user,
         authToken: result.token,
@@ -85,13 +136,16 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
   }) async {
     state = const AuthState.loading();
     try {
+      final deviceInfo = await _getDeviceInfo();
       final result = await _authRepo.register(
         email: email,
         password: password,
         inviteCode: inviteCode,
         emailCode: emailCode,
+        deviceInfo: deviceInfo,
       );
       await _persistAuth(result.token, result.user.email);
+      await _persistSessionId(result.sessionId);
       state = AuthState.authenticated(
         user: result.user,
         authToken: result.token,
@@ -115,6 +169,7 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
     if (prefs != null) {
       await prefs.remove(_kAuthToken);
       await prefs.remove(_kUserEmail);
+      await prefs.remove(_kSessionId);
     }
     await _clearAllProfiles();
     state = const AuthState.unauthenticated();
@@ -133,10 +188,7 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       await refreshSubscribeInfo();
     } on AuthException catch (e) {
       loggy.warning('Failed to refresh user info: ${e.message}');
-      // If 401, force logout
-      if (e.message.contains('401') || e.message.contains('Unauthorized')) {
-        await logout();
-      }
+      await _handleAuthException(e);
     }
   }
 
@@ -159,6 +211,9 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       }
     } catch (e, st) {
       loggy.error('Failed to sync subscription', e, st);
+      if (e is AuthException) {
+        await _handleAuthException(e);
+      }
     }
   }
 
@@ -189,10 +244,21 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
         transferEnable: info['transfer_enable'] as int? ?? 0,
         expiredAt: info['expired_at'] as int?,
         subscribeUrl: info['subscribe_url'] as String?,
+        deviceLimit: info['device_limit'] as int?,
+        canConnectVpn: info['can_connect_vpn'] as bool? ?? true,
       );
+      final previouslyHadNoPlan = current.user.planId == null;
       state = AuthState.authenticated(user: updatedUser, authToken: current.authToken);
+
+      if (updatedUser.planId == null) {
+        await _clearAllProfiles();
+      } else if (previouslyHadNoPlan) {
+        // User just bought a plan, auto-sync to fetch nodes
+        await _syncSubscription(current.authToken);
+      }
     } on AuthException catch (e) {
       loggy.warning('Failed to refresh subscribe info: ${e.message}');
+      await _handleAuthException(e);
     }
   }
 
@@ -201,6 +267,46 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
     if (prefs != null) {
       await prefs.setString(_kAuthToken, token);
       await prefs.setString(_kUserEmail, email);
+    }
+  }
+
+  Future<void> _persistSessionId(int? sessionId) async {
+    final prefs = ref.read(sharedPreferencesProvider).valueOrNull;
+    if (prefs != null && sessionId != null) {
+      await prefs.setInt(_kSessionId, sessionId);
+    }
+  }
+
+  /// Get the current device's session ID (for identifying "this device" in session list).
+  int? get currentSessionId {
+    final prefs = ref.read(sharedPreferencesProvider).valueOrNull;
+    return prefs?.getInt(_kSessionId);
+  }
+
+  /// Handle auth exceptions to auto-logout on invalid/expired tokens
+  Future<void> _handleAuthException(AuthException e) async {
+    final msg = e.message;
+    if (msg.contains('HTTP 401') ||
+        msg.contains('HTTP 403') ||
+        msg.contains('Unauthorized') ||
+        msg.contains('未登录') ||
+        msg.contains('过期')) {
+      loggy.info('Token expired or invalid. Forcing logout...');
+      await logout();
+
+      final context = rootNavKey.currentContext;
+      if (context != null && context.mounted) {
+        final t = ref.read(translationsProvider).valueOrNull;
+        if (t != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(t.pages.xlink.loginExpiredHint),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
+      }
     }
   }
 }

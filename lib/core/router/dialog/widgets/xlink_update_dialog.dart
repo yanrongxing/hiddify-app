@@ -22,6 +22,7 @@ class XlinkUpdateDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isForceUpdate = remoteVersionEntity.isForceUpdate;
     final allowDismiss = !isForceUpdate;
 
@@ -47,12 +48,12 @@ class XlinkUpdateDialog extends HookConsumerWidget {
         child: Container(
           constraints: const BoxConstraints(maxWidth: 400),
           decoration: BoxDecoration(
-            color: const Color(0xFF131313), // background
+            color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFF3d4945).withValues(alpha: 0.3)),
+            border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.5),
+                color: theme.shadowColor.withValues(alpha: 0.5),
                 blurRadius: 30,
                 offset: const Offset(0, 10),
               )
@@ -71,7 +72,7 @@ class XlinkUpdateDialog extends HookConsumerWidget {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFF69d9c0).withValues(alpha: 0.15),
+                        theme.colorScheme.primary.withValues(alpha: 0.15),
                         Colors.transparent,
                       ],
                     ),
@@ -88,7 +89,7 @@ class XlinkUpdateDialog extends HookConsumerWidget {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFF1b1b1c).withValues(alpha: 0.8),
+                        isDark ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.8) : theme.colorScheme.secondary.withValues(alpha: 0.15),
                         Colors.transparent,
                       ],
                     ),
@@ -106,44 +107,40 @@ class XlinkUpdateDialog extends HookConsumerWidget {
                       Align(
                         alignment: Alignment.topRight,
                         child: IconButton(
-                          icon: const Icon(Icons.close, color: Color(0xFFbcc9c4)),
+                          icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
                           onPressed: () => context.pop(),
                         ),
                       ),
                     if (!allowDismiss) const Gap(40),
 
-                    // Icon
                     Container(
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2a2a2a),
+                        color: isDark ? theme.colorScheme.surfaceContainerHighest : theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF69d9c0).withValues(alpha: 0.15),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.15),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
                         ],
-                        border: Border.all(color: const Color(0xFF3d4945).withValues(alpha: 0.3)),
+                        border: Border.all(color: isDark ? theme.colorScheme.outline.withValues(alpha: 0.3) : theme.colorScheme.primary.withValues(alpha: 0.2)),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.system_update_rounded,
-                        color: Color(0xFF69d9c0),
+                        color: theme.colorScheme.primary,
                         size: 40,
                       ),
                     ),
                     const Gap(24),
 
-                    // Text
                     Text(
                       t.dialogs.newVersion.title,
-                      style: const TextStyle(
-                        fontFamily: 'Space Grotesk',
-                        fontSize: 24,
+                      style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFe5e2e1),
+                        color: theme.colorScheme.onSurface,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -152,10 +149,8 @@ class XlinkUpdateDialog extends HookConsumerWidget {
                       remoteVersionEntity.updateContent.isNotEmpty
                           ? remoteVersionEntity.updateContent
                           : t.dialogs.newVersion.msg,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 14,
-                        color: Color(0xFFbcc9c4),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -167,14 +162,14 @@ class XlinkUpdateDialog extends HookConsumerWidget {
                       child: ElevatedButton(
                         onPressed: onUpdateNow,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF69d9c0),
-                          foregroundColor: const Color(0xFF003027),
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: theme.colorScheme.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 8,
-                          shadowColor: const Color(0xFF69d9c0).withValues(alpha: 0.25),
+                          shadowColor: theme.colorScheme.primary.withValues(alpha: 0.25),
                         ),
                         child: Text(
                           t.dialogs.newVersion.updateNow,
@@ -193,11 +188,9 @@ class XlinkUpdateDialog extends HookConsumerWidget {
                         onPressed: onMaybeLater,
                         child: Text(
                           t.common.close,
-                          style: const TextStyle(
-                            fontFamily: 'Manrope',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFbcc9c4),
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurfaceVariant,
                             letterSpacing: 1.5,
                           ),
                         ),

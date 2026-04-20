@@ -32,7 +32,19 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lifecycleState = useAppLifecycleState();
+
     useEffect(() {
+      if (lifecycleState == AppLifecycleState.resumed) {
+        ref.read(authNotifierProvider.notifier).refreshUserInfo();
+      }
+      return null;
+    }, [lifecycleState]);
+
+    useEffect(() {
+      // Refresh user info when home page mounts
+      Future.microtask(() => ref.read(authNotifierProvider.notifier).refreshUserInfo());
+      
       print('[HOME_UPDATE] useEffect triggered, will check in 2s');
       Future.delayed(const Duration(seconds: 2), () async {
         print('[HOME_UPDATE] delay finished, calling check()...');
@@ -107,7 +119,7 @@ class HomePage extends HookConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle, color: theme.colorScheme.onSurface, size: 28),
-            onPressed: () => context.push('/settings'),
+            onPressed: () => context.push('/settings').then((_) => ref.read(authNotifierProvider.notifier).refreshUserInfo()),
           ),
           const Gap(8),
         ],
@@ -192,15 +204,21 @@ class HomeDataCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final t = ref.watch(translationsProvider).requireValue;
-    final isAuth = ref.watch(authNotifierProvider) is Authenticated;
+    final authState = ref.watch(authNotifierProvider);
+    final isAuth = authState is Authenticated;
+    final canConnectVpn = isAuth ? authState.user.canConnectVpn : true;
+
+    final isDark = theme.brightness == Brightness.dark;
 
     if (profile == null) {
+      final isOverLimit = isAuth && !canConnectVpn;
+
       return Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: const Color(0xFF353535).withValues(alpha: 0.4),
+          color: isDark ? const Color(0xFF353535).withValues(alpha: 0.4) : theme.colorScheme.surface.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
+          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.15 : 0.2)),
         ),
         clipBehavior: Clip.antiAlias,
         child: BackdropFilter(
@@ -212,12 +230,15 @@ class HomeDataCard extends HookConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.bolt_rounded, color: theme.colorScheme.primary),
+                    Icon(isOverLimit ? Icons.warning_rounded : Icons.bolt_rounded, 
+                         color: isOverLimit ? theme.colorScheme.error : theme.colorScheme.primary),
                     const Gap(8),
                     Text(
-                      isAuth ? t.pages.xlink.noSubscription : t.pages.xlink.notLoggedIn,
+                      isOverLimit 
+                          ? t.pages.xlink.deviceLimitReached
+                          : (isAuth ? t.pages.xlink.noSubscription : t.pages.xlink.notLoggedIn),
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.onSurface,
+                        color: isOverLimit ? theme.colorScheme.error : theme.colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -225,7 +246,9 @@ class HomeDataCard extends HookConsumerWidget {
                 ),
                 const Gap(8),
                 Text(
-                  isAuth ? t.pages.xlink.noSubscriptionHint : t.pages.xlink.notLoggedInHint,
+                  isOverLimit
+                      ? t.pages.xlink.deviceLimitDialogHint
+                      : (isAuth ? t.pages.xlink.noSubscriptionHint : t.pages.xlink.notLoggedInHint),
                   style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const Gap(16),
@@ -233,17 +256,24 @@ class HomeDataCard extends HookConsumerWidget {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () {
-                      if (isAuth) {
+                      if (isOverLimit) {
+                        context.pushNamed('deviceManage').then((_) => ref.read(authNotifierProvider.notifier).refreshUserInfo());
+                      } else if (isAuth) {
                         if (FeatureFlags.enableSubscriptionShop) {
-                          context.pushNamed('shop');
+                          context.pushNamed('shop').then((_) => ref.read(authNotifierProvider.notifier).refreshUserInfo());
                         } else {
                           UriUtils.tryLaunch(Uri.parse(Constants.shopUrl));
                         }
                       } else {
-                        context.pushNamed('login');
+                        context.pushNamed('login').then((_) => ref.read(authNotifierProvider.notifier).refreshUserInfo());
                       }
                     },
-                    child: Text(isAuth ? t.pages.xlink.buyNow : t.pages.xlink.goLogin),
+                    style: isOverLimit 
+                        ? FilledButton.styleFrom(backgroundColor: theme.colorScheme.error)
+                        : null,
+                    child: Text(isOverLimit 
+                        ? t.pages.xlink.deviceManagement 
+                        : (isAuth ? t.pages.xlink.buyNow : t.pages.xlink.goLogin)),
                   ),
                 ),
               ],
@@ -253,9 +283,8 @@ class HomeDataCard extends HookConsumerWidget {
       );
     }
 
-    final subInfo = profile is RemoteProfileEntity ? (profile as RemoteProfileEntity).subInfo : null;
-    final authState = ref.watch(authNotifierProvider);
     final authUser = authState is Authenticated ? authState.user : null;
+    final subInfo = profile is RemoteProfileEntity ? (profile as RemoteProfileEntity).subInfo : null;
 
     // Plan name: prefer auth user's plan name (from API), fallback to profile sub info
     final plan =
@@ -469,8 +498,13 @@ class HomeDataCard extends HookConsumerWidget {
                       }
                       return;
                     }
-                    final p = profile;
+
+                    // Always sync subscription state and data
+                    await ref.read(authNotifierProvider.notifier).syncSubscription();
+
+                    final p = ref.read(activeProfileProvider).valueOrNull;
                     if (p == null) {
+                      if (!context.mounted) return;
                       final shouldSubscribe = await showDialog<bool>(
                         context: context,
                         builder: (context) {
@@ -503,7 +537,6 @@ class HomeDataCard extends HookConsumerWidget {
                     if (p is RemoteProfileEntity) {
                       ref.read(updateProfileNotifierProvider(p.id).notifier).updateProfile(p);
                     }
-                    ref.read(authNotifierProvider.notifier).syncSubscription();
                   },
                 ),
               ),

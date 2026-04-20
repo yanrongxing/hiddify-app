@@ -49,6 +49,12 @@ class UserModel with _$UserModel {
 
     /// Subscription URL.
     @JsonKey(name: 'subscribe_url') String? subscribeUrl,
+
+    /// Max concurrent app devices (null = unlimited).
+    @JsonKey(name: 'device_limit') int? deviceLimit,
+
+    /// Whether the user can currently connect to VPN (managed by backend)
+    @JsonKey(name: 'can_connect_vpn') @Default(true) bool canConnectVpn,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, Object?> json) =>

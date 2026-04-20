@@ -11,6 +11,7 @@ import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/auth/widget/login_page.dart';
+import 'package:hiddify/features/auth/widget/device_manage_page.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/log/overview/logs_page.dart';
@@ -102,15 +103,18 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           url = state.uri.queryParameters['url'];
         }
 
+        final isDebug = state.uri.queryParameters['debug'] == 'true';
+
         if (!introCompleted) {
           return url != null ? '/intro?url=$url' : '/intro';
-        } else if (isIntro) {
-          if (url != null)
+        } else if (isIntro && !isDebug) {
+          if (url != null) {
             WidgetsBinding.instance.addPostFrameCallback(
               (_) => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(url: url),
             );
+          }
           return '/home';
-        } else if (url != null) {
+        } else if (url != null && !isIntro) {
           WidgetsBinding.instance.addPostFrameCallback(
             (_) => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(url: url),
           );
@@ -257,6 +261,11 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                       name: 'share',
                       path: '/share',
                       pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const SharePage()),
+                    ),
+                    GoRoute(
+                      name: 'deviceManage',
+                      path: '/device-manage',
+                      pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const DeviceManagePage()),
                     ),
                     if (!FeatureFlags.hideAdvancedSettings)
                       GoRoute(

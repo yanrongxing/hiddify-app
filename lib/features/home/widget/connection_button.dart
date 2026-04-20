@@ -174,6 +174,28 @@ class ConnectionButton extends HookConsumerWidget {
             context.pushNamed('login');
           }
         },
+        _ when isAuthenticated && !authState.user.canConnectVpn => () async {
+          final shouldGo = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(t.pages.xlink.deviceLimitReached),
+              content: Text(t.pages.xlink.deviceLimitDialogHint),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(t.pages.xlink.deviceManagement),
+                ),
+              ],
+            ),
+          );
+          if (shouldGo == true && context.mounted) {
+            context.pushNamed('deviceManage');
+          }
+        },
         AsyncData(value: Connected()) when requiresReconnect == true => () async {
           final activeProfile = await ref.read(activeProfileProvider.future);
           return await ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);
@@ -218,12 +240,14 @@ class ConnectionButton extends HookConsumerWidget {
         _ => false,
       },
       label: switch (connectionStatus) {
+        _ when isAuthenticated && !authState.user.canConnectVpn => t.pages.xlink.deviceLimitReached,
         AsyncData(value: Connected()) when requiresReconnect == true => t.connection.reconnect,
         AsyncData(value: Connected()) when delay <= 0 || delay >= 65000 => t.connection.connecting,
         AsyncData(value: final status) => status.present(t),
         _ => "",
       },
       buttonColor: switch (connectionStatus) {
+        _ when isAuthenticated && !authState.user.canConnectVpn => Colors.red,
         AsyncData(value: Connected()) when requiresReconnect == true => Colors.teal,
         AsyncData(value: Connected()) when delay <= 0 || delay >= 65000 => const Color.fromARGB(255, 185, 176, 103),
         AsyncData(value: Connected()) => buttonTheme.connectedColor!,
@@ -240,6 +264,7 @@ class ConnectionButton extends HookConsumerWidget {
         _ => Assets.images.disconnectNorouz,
       },
       newButtonColor: switch (connectionStatus) {
+        _ when isAuthenticated && !authState.user.canConnectVpn => Colors.red,
         AsyncData(value: Connected()) when requiresReconnect == true => Colors.teal,
         AsyncData(value: Connected()) when delay <= 0 || delay >= 65000 => const Color.fromARGB(255, 185, 176, 103),
         AsyncData(value: Connected()) => buttonTheme.connectedColor!,
@@ -305,12 +330,12 @@ class _ConnectionButtonState extends State<_ConnectionButton> {
               final isDark = Theme.of(context).brightness == Brightness.dark;
               final scheme = Theme.of(context).colorScheme;
 
-              Widget buildRing(double size, double opacity, bool reverse) {
+                Widget buildRing(double size, double opacity, bool reverse) {
                 if (widget.isConnecting) {
                   return SizedBox(
                         width: size,
                         height: size,
-                        child: CustomPaint(painter: RadarBorderPainter(scheme.primary.withValues(alpha: opacity * 3))),
+                        child: CustomPaint(painter: RadarBorderPainter((isDark ? scheme.primary : widget.buttonColor).withValues(alpha: opacity * 3))),
                       )
                       .animate(onPlay: (c) => c.repeat())
                       .rotate(
@@ -325,7 +350,7 @@ class _ConnectionButtonState extends State<_ConnectionButton> {
                     height: size,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: scheme.primary.withValues(alpha: opacity), width: 1),
+                      border: Border.all(color: (isDark ? scheme.primary : widget.buttonColor).withValues(alpha: opacity), width: 1),
                     ),
                   );
                 }
@@ -353,7 +378,7 @@ class _ConnectionButtonState extends State<_ConnectionButton> {
                           height: 256,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: scheme.primary.withValues(alpha: 0.3), width: 1),
+                            border: Border.all(color: (isDark ? scheme.primary : widget.buttonColor).withValues(alpha: 0.3), width: 1),
                             boxShadow: [
                               BoxShadow(
                                 color: widget.buttonColor.withValues(alpha: 0.3),
