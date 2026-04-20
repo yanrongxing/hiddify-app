@@ -22,12 +22,54 @@ import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
+import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
+import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
+import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useEffect(() {
+      print('[HOME_UPDATE] useEffect triggered, will check in 2s');
+      Future.delayed(const Duration(seconds: 2), () async {
+        print('[HOME_UPDATE] delay finished, calling check()...');
+        try {
+          final result = await ref.read(appUpdateNotifierProvider.notifier).check();
+          print('[HOME_UPDATE] check() returned: $result (type: ${result.runtimeType})');
+          switch (result) {
+            case AppUpdateStateAvailable(:final versionInfo):
+              print('[HOME_UPDATE] showing dialog for version=${versionInfo.version}, force=${versionInfo.isForceUpdate}');
+              ref.read(dialogNotifierProvider.notifier).showNewVersion(
+                currentVersion: '',
+                newVersion: versionInfo,
+                canIgnore: !versionInfo.isForceUpdate,
+              );
+              print('[HOME_UPDATE] showNewVersion called successfully');
+            case AppUpdateStateIgnored(:final versionInfo):
+              if (versionInfo.isForceUpdate) {
+                print('[HOME_UPDATE] force update was ignored, showing dialog anyway');
+                ref.read(dialogNotifierProvider.notifier).showNewVersion(
+                  currentVersion: '',
+                  newVersion: versionInfo,
+                  canIgnore: false,
+                );
+              } else {
+                print('[HOME_UPDATE] optional update was previously ignored, skipping');
+              }
+            default:
+              print('[HOME_UPDATE] no update dialog needed, state=$result');
+              break;
+          }
+        } catch (e, st) {
+          print('[HOME_UPDATE] ERROR in useEffect: $e');
+          print('[HOME_UPDATE] stack: $st');
+        }
+      });
+      return null;
+    }, []);
     final theme = Theme.of(context);
     final t = ref.watch(translationsProvider).requireValue;
     // final hasAnyProfile = ref.watch(hasAnyProfileProvider);

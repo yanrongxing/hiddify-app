@@ -5,7 +5,7 @@ import 'package:hiddify/core/router/dialog/widgets/confirmation_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/custom_alert_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/experimental_feature_notice.dart';
 import 'package:hiddify/core/router/dialog/widgets/free_profile_consent_dialog.dart';
-import 'package:hiddify/core/router/dialog/widgets/new_version_dialog.dart';
+import 'package:hiddify/core/router/dialog/widgets/xlink_update_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/no_active_profile_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/ok_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/proxy_info_dialog.dart';
@@ -95,7 +95,7 @@ class DialogNotifier extends _$DialogNotifier {
     required RemoteVersionEntity newVersion,
     required bool canIgnore,
   }) async {
-    return await _show<void>(NewVersionDialog(currentVersion, newVersion, canIgnore: canIgnore));
+    return await _show<void>(XlinkUpdateDialog(remoteVersionEntity: newVersion, canIgnore: canIgnore));
   }
 
   Future<bool> showConfirmation({
