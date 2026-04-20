@@ -38,7 +38,7 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
       }
     }
 
-    final String nodeTag = activeProxy != null ? getRealOutboundTag(activeProxy) : "未连接节点";
+    final String nodeTag = activeProxy != null ? getRealOutboundTag(activeProxy, t) : "未连接节点";
     final String nodeType = activeProxy != null ? activeProxy.type : "UNKNOWN";
     final String nodeIp = activeProxy != null ? activeProxy.ipinfo.ip : "";
     final String countryCode = activeProxy != null ? activeProxy.ipinfo.countryCode : "";
@@ -232,10 +232,19 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
   }
 }
 
-String getRealOutboundTag(OutboundInfo group) {
+String getRealOutboundTag(OutboundInfo group, dynamic t) {
   var tag = group.tagDisplay;
   if (group.groupSelectedTagDisplay != "" && group.groupSelectedTagDisplay != tag) {
-    tag = "$tag → ${group.groupSelectedTagDisplay}";
+    final selectedTag = group.groupSelectedTagDisplay.trim();
+    String translatedSelectedTag = selectedTag;
+    if (['round-robin', 'round robin'].contains(selectedTag.toLowerCase())) {
+      translatedSelectedTag = t.pages.settings.routing.balancerStrategy.roundRobin;
+    } else if (['consistent-hash', 'consistent hash'].contains(selectedTag.toLowerCase())) {
+      translatedSelectedTag = t.pages.settings.routing.balancerStrategy.consistentHash;
+    } else if (['sticky-session', 'sticky session'].contains(selectedTag.toLowerCase())) {
+      translatedSelectedTag = t.pages.settings.routing.balancerStrategy.stickySession;
+    }
+    tag = "$tag → $translatedSelectedTag";
   }
   return tag;
 }

@@ -159,7 +159,16 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
                               const SizedBox(width: 4),
                               Flexible(
                                 child: Text(
-                                  "(${proxy.groupSelectedTagDisplay.trim()})",
+                                  "(${[
+                                    'round-robin',
+                                    'round robin'
+                                  ].contains(proxy.groupSelectedTagDisplay.trim().toLowerCase()) ? t.pages.settings.routing.balancerStrategy.roundRobin : [
+                                    'consistent-hash',
+                                    'consistent hash'
+                                  ].contains(proxy.groupSelectedTagDisplay.trim().toLowerCase()) ? t.pages.settings.routing.balancerStrategy.consistentHash : [
+                                    'sticky-session',
+                                    'sticky session'
+                                  ].contains(proxy.groupSelectedTagDisplay.trim().toLowerCase()) ? t.pages.settings.routing.balancerStrategy.stickySession : proxy.groupSelectedTagDisplay.trim()})",
                                   style: theme.textTheme.labelSmall?.copyWith(
                                     color: scheme.onSurfaceVariant,
                                     fontSize: 10,
