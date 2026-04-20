@@ -97,7 +97,7 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "CURRENT NODE",
+                              t.pages.xlink.currentNode,
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                                 letterSpacing: 2.0,

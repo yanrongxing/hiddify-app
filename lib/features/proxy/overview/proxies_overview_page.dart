@@ -129,7 +129,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                             child: Padding(
                               padding: const EdgeInsets.only(left: 8, bottom: 12),
                               child: Text(
-                                "SYSTEM BALANCERS",
+                                t.pages.xlink.systemBalancers,
                                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   letterSpacing: 1.5,
@@ -160,7 +160,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                               child: Row(
                                 children: [
                                   Text(
-                                    "PREMIUM RELAYS",
+                                    t.pages.xlink.premiumRelays,
                                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       letterSpacing: 1.5,

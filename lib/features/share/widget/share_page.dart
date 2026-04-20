@@ -423,9 +423,7 @@ class _InviteCodeCard extends StatelessWidget {
               const Gap(8),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => SharePlus.instance.share(
-                    ShareParams(text: url),
-                  ),
+                  onPressed: () => Share.share(url),
                   icon: const Icon(Icons.share, size: 16),
                   label: Text(t.pages.share.shareLink),
                 ),

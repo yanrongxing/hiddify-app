@@ -147,6 +147,7 @@ class HomeDataCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final t = ref.watch(translationsProvider).requireValue;
     final isAuth = ref.watch(authNotifierProvider) is Authenticated;
     
     if (profile == null) {
@@ -298,7 +299,7 @@ class HomeDataCard extends HookConsumerWidget {
                             ),
                             const Gap(8),
                             Text(
-                              "$daysLeft DAYS",
+                              "$daysLeft ${t.pages.xlink.days}",
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurface,
                                 letterSpacing: 1.5,

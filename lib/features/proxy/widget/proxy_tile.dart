@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
 import 'package:hiddify/gen/fonts.gen.dart';
@@ -18,6 +19,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final t = ref.watch(translationsProvider).requireValue;
     
     final isGroup = proxy.isGroup;
     final delayStr = proxy.urlTestDelay > 65000 ? "---" : "${proxy.urlTestDelay}ms";
