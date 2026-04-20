@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Personal Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;family=Space+Grotesk:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#26a28b",
+                        "surface-container-low": "#1b1b1c",
+                        "secondary-fixed-dim": "#b8c3ff",
+                        "background": "#131313",
+                        "primary": "#69d9c0",
+                        "surface-container-lowest": "#0e0e0e",
+                        "primary-fixed-dim": "#69d9c0",
+                        "secondary": "#b8c3ff",
+                        "tertiary-container": "#a078ff",
+                        "surface-dim": "#131313",
+                        "tertiary": "#d0bcff",
+                        "outline-variant": "#3d4945",
+                        "on-primary-fixed": "#00201a",
+                        "surface-container": "#202020",
+                        "on-secondary-fixed": "#001356",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-container": "#003027",
+                        "on-surface-variant": "#bcc9c4",
+                        "on-tertiary-fixed-variant": "#5516be",
+                        "tertiary-fixed-dim": "#d0bcff",
+                        "on-primary-fixed-variant": "#005143",
+                        "surface": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "on-tertiary": "#3c0091",
+                        "outline": "#87948f",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-variant": "#353535",
+                        "on-tertiary-fixed": "#23005c",
+                        "primary-fixed": "#87f6dc",
+                        "on-background": "#e5e2e1",
+                        "on-primary": "#00382e",
+                        "on-error": "#690005",
+                        "inverse-primary": "#006b5a",
+                        "surface-tint": "#69d9c0",
+                        "on-secondary-container": "#c6ceff",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#0035be",
+                        "secondary-container": "#0043eb",
+                        "tertiary-fixed": "#e9ddff",
+                        "surface-bright": "#393939",
+                        "on-error-container": "#ffdad6",
+                        "inverse-on-surface": "#303030",
+                        "on-tertiary-container": "#340080",
+                        "secondary-fixed": "#dde1ff",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#353535",
+                        "on-secondary": "#002388"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', sans-serif; }
+        .font-label { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24 flex flex-col items-center">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-gradient-to-b from-[#1b1b1c] to-transparent shadow-none">
+<div class="flex justify-between items-center px-6 h-16 w-full max-w-md mx-auto">
+<button class="text-[#69d9c0] hover:bg-[#353535]/30 transition-colors active:scale-95 duration-200 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-['Space_Grotesk'] tracking-tight font-bold uppercase text-on-surface text-lg">SECURITY TERMINAL</h1>
+<button class="text-[#e5e2e1] hover:bg-[#353535]/30 transition-colors active:scale-95 duration-200 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-md mx-auto pt-24 px-4 flex flex-col gap-6">
+<!-- User Profile Card (Header) -->
+<section class="bg-surface-container-low rounded-xl p-6 relative overflow-hidden border border-outline-variant/15">
+<!-- Glassmorphic effect background -->
+<div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
+<div class="flex items-center gap-4 relative z-10">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border-2 border-primary/20 shadow-[0_0_20px_rgba(105,217,192,0.1)]">
+<span class="material-symbols-outlined text-4xl text-primary" data-weight="fill" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</div>
+<div class="flex-1">
+<h2 class="font-headline font-bold text-xl tracking-tight text-on-surface mb-1">kimctc88@gmail.com</h2>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-variant animate-pulse"></span>
+<p class="font-body text-sm text-on-surface-variant">Free Member / 未開通會員</p>
+</div>
+</div>
+</div>
+<div class="mt-6 relative z-10">
+<button class="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-lg tracking-wide hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(105,217,192,0.2)]">
+<span class="material-symbols-outlined text-xl">bolt</span>
+                    立即訂閱
+                </button>
+</div>
+</section>
+<!-- Group 1: Utilities -->
+<section class="bg-surface-container rounded-xl overflow-hidden border border-outline-variant/15 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-highest/50 transition-colors border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">qr_code_scanner</span>
+<span class="font-body text-base text-on-surface">掃描二維碼</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 text-sm">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-highest/50 transition-colors border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">share</span>
+<span class="font-body text-base text-on-surface">分享</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 text-sm">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-highest/50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">local_activity</span>
+<span class="font-body text-base text-on-surface">卡券</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 text-sm">chevron_right</span>
+</button>
+</section>
+<!-- Group 2: Support & Info -->
+<section class="bg-surface-container rounded-xl overflow-hidden border border-outline-variant/15 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-highest/50 transition-colors border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">settings</span>
+<span class="font-body text-base text-on-surface">設定</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 text-sm">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-highest/50 transition-colors border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">help</span>
+<span class="font-body text-base text-on-surface">幫助中心</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 text-sm">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-highest/50 transition-colors border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">support_agent</span>
+<span class="font-body text-base text-on-surface">在線客服</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 text-sm">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-highest/50 transition-colors border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">alternate_email</span>
+<span class="font-body text-base text-on-surface">官方「X」帳號</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 text-sm">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-highest/50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">info</span>
+<span class="font-body text-base text-on-surface">關於QuickQ</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 text-sm">chevron_right</span>
+</button>
+</section>
+<!-- Group 3: Logout -->
+<section class="mt-4">
+<button class="w-full flex items-center justify-center p-4 rounded-xl bg-surface-container border border-outline-variant/15 hover:bg-surface-container-highest/50 transition-colors shadow-[0_8px_30px_rgba(0,0,0,0.5)] group">
+<span class="font-headline font-bold tracking-wide text-error/80 group-hover:text-error transition-colors">退出登錄</span>
+</button>
+</section>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="bg-[#131313]/80 backdrop-blur-xl fixed bottom-0 w-full z-50 rounded-t-xl border-t border-[#3d4945]/15 shadow-[0_-4px_40px_rgba(105,217,192,0.06)]">
+<div class="flex justify-around items-center h-20 px-4 w-full max-w-md mx-auto">
+<!-- NODES (Inactive) -->
+<button class="flex flex-col items-center justify-center text-[#e5e2e1]/50 hover:text-[#69d9c0] transition-all active:scale-90 duration-150 gap-1 w-16">
+<span class="material-symbols-outlined text-2xl">language</span>
+<span class="font-['Manrope'] text-[10px] tracking-[0.1em] font-bold uppercase">NODES</span>
+</button>
+<!-- SHIELD (Inactive) -->
+<button class="flex flex-col items-center justify-center text-[#e5e2e1]/50 hover:text-[#69d9c0] transition-all active:scale-90 duration-150 gap-1 w-16">
+<span class="material-symbols-outlined text-2xl">security</span>
+<span class="font-['Manrope'] text-[10px] tracking-[0.1em] font-bold uppercase">SHIELD</span>
+</button>
+<!-- VAULT (Inactive) -->
+<button class="flex flex-col items-center justify-center text-[#e5e2e1]/50 hover:text-[#69d9c0] transition-all active:scale-90 duration-150 gap-1 w-16">
+<span class="material-symbols-outlined text-2xl">speed</span>
+<span class="font-['Manrope'] text-[10px] tracking-[0.1em] font-bold uppercase">VAULT</span>
+</button>
+<!-- PROFILE (Active) -->
+<button class="flex flex-col items-center justify-center text-[#69d9c0] relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-[#69d9c0] after:rounded-full after:animate-pulse hover:text-[#69d9c0] transition-all active:scale-90 duration-150 gap-1 w-16">
+<span class="material-symbols-outlined text-2xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+<span class="font-['Manrope'] text-[10px] tracking-[0.1em] font-bold uppercase">PROFILE</span>
+</button>
+</div>
+</nav>
+</body></html>

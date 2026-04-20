@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Global Nodes - The Kinetic Ether</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#006b5a",
+                        "on-secondary-fixed-variant": "#0035be",
+                        "on-tertiary": "#3c0091",
+                        "error": "#ffb4ab",
+                        "on-background": "#e5e2e1",
+                        "on-tertiary-container": "#340080",
+                        "on-surface-variant": "#bcc9c4",
+                        "on-primary-fixed": "#00201a",
+                        "tertiary-fixed-dim": "#d0bcff",
+                        "inverse-on-surface": "#303030",
+                        "tertiary-fixed": "#e9ddff",
+                        "surface-container-highest": "#353535",
+                        "on-tertiary-fixed-variant": "#5516be",
+                        "on-surface": "#e5e2e1",
+                        "surface-container": "#202020",
+                        "tertiary": "#d0bcff",
+                        "outline-variant": "#3d4945",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-fixed": "#87f6dc",
+                        "on-secondary-fixed": "#001356",
+                        "on-primary-fixed-variant": "#005143",
+                        "surface-variant": "#353535",
+                        "on-secondary": "#002388",
+                        "tertiary-container": "#a078ff",
+                        "on-tertiary-fixed": "#23005c",
+                        "surface-tint": "#69d9c0",
+                        "surface-bright": "#393939",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-container": "#003027",
+                        "on-primary": "#00382e",
+                        "surface-container-low": "#1b1b1c",
+                        "secondary-container": "#0043eb",
+                        "surface-dim": "#131313",
+                        "primary-container": "#26a28b",
+                        "error-container": "#93000a",
+                        "on-secondary-container": "#c6ceff",
+                        "on-error": "#690005",
+                        "secondary-fixed": "#dde1ff",
+                        "outline": "#87948f",
+                        "secondary-fixed-dim": "#b8c3ff",
+                        "secondary": "#b8c3ff",
+                        "primary": "#69d9c0",
+                        "surface-container-lowest": "#0e0e0e",
+                        "primary-fixed-dim": "#69d9c0",
+                        "surface": "#131313",
+                        "inverse-surface": "#e5e2e1",
+                        "background": "#131313"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": [
+                            "Space Grotesk"
+                        ],
+                        "body": [
+                            "Inter"
+                        ],
+                        "label": [
+                            "Manrope"
+                        ]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .font-label { font-family: 'Manrope', sans-serif; }
+        
+        /* Custom Scrollbar for sleek dark mode */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #353535;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3d4945;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Desktop Drawer & Content Layout -->
+<div class="flex h-screen overflow-hidden w-full">
+<!-- NavigationDrawer (Hidden on Mobile) -->
+<nav class="hidden md:flex bg-[#1b1b1c] text-[#69d9c0] font-['Inter'] font-medium rounded-r-2xl h-full divide-y divide-[#3d4945]/10 shadow-2xl shadow-black fixed inset-y-0 left-0 w-80 z-[60] flex-col p-6">
+<!-- Header -->
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container-high ring-2 ring-primary-container">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a user profile picture with futuristic cyan lighting accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy6b9A_xNkkTGEUgtOjn6S-Scf8xma4NnQ3KHBLDba9oGRJIiCY6s14oOlkaDNY1Ph4r_KkO8C080SUNnswBK1erhDn0EAyZqk7Phap7Op-Ohf25f31VaSa5QzOyWXby1NzWurZZGPGokwM6Aa6oMD4NbiILe3xJkWg8aFruZk0wJNsQQHvYCh4wQH6fhckuEuAhev58Ez0Q7aT-3IM1rDZ8v2mwGVdEN3Uzdf6q3pUooZjl_bDvdCcMlQBs3dj4_soLt7ZyI6-Mtt"/>
+</div>
+<div>
+<h2 class="text-on-surface font-headline font-bold">Kinetica User</h2>
+<p class="text-sm text-primary-container">Pro Shield Active</p>
+<p class="text-xs text-on-surface-variant font-label tracking-wide">Node v2.4.1</p>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex-1 py-6 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-[#202020] hover:pl-2 transition-all duration-300 active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">workspace_premium</span>
+                    Premium Access
+                </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-gradient-to-r from-[#69d9c0]/10 to-transparent text-[#69d9c0] border-l-2 border-[#69d9c0] hover:pl-2 transition-all duration-300 active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dns</span>
+                    Global Nodes
+                </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-[#202020] hover:pl-2 transition-all duration-300 active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings_input_component</span>
+                    Protocol Settings
+                </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-[#202020] hover:pl-2 transition-all duration-300 active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">gpp_maybe</span>
+                    Kill Switch
+                </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-[#202020] hover:pl-2 transition-all duration-300 active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history_edu</span>
+                    Audit Logs
+                </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-[#202020] hover:pl-2 transition-all duration-300 active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">support_agent</span>
+                    Help Center
+                </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col relative w-full md:ml-80 h-screen overflow-y-auto overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-[#131313]/60 backdrop-blur-xl text-[#69d9c0] font-['Space_Grotesk'] tracking-tight flex justify-between items-center px-6 h-16 w-full sticky top-0 z-50 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#3d4945]/15">
+<button class="md:hidden p-2 -ml-2 text-on-surface-variant hover:bg-[#353535]/30 transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex-1 flex items-center gap-2">
+<button class="hidden md:flex p-2 -ml-2 text-on-surface-variant hover:bg-[#353535]/30 transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold tracking-tighter text-[#69d9c0]">Global Nodes</h1>
+</div>
+<button class="p-2 -mr-2 text-[#69d9c0] hover:bg-[#353535]/30 transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">sync</span>
+</button>
+</header>
+<!-- Node List Canvas -->
+<div class="flex-1 p-4 md:p-8 space-y-8 max-w-4xl mx-auto w-full pb-32">
+<!-- Balancer Group -->
+<section class="space-y-4">
+<h3 class="font-label text-xs uppercase tracking-[0.1em] text-on-surface-variant pl-2">System Balancers</h3>
+<div class="grid gap-3">
+<!-- Node Item: Lowest -->
+<div class="group relative flex items-center p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer ring-1 ring-outline-variant/15 hover:ring-primary/30">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mr-4 shrink-0">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">speed</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<h4 class="font-body font-medium text-on-surface truncate">Lowest</h4>
+</div>
+<p class="text-sm text-on-surface-variant font-label tracking-wider">LATENCY OPTIMIZED</p>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="text-right">
+<span class="text-xs font-headline font-bold text-primary">12ms</span>
+</div>
+<div class="w-6 h-6 rounded-full border border-outline-variant flex items-center justify-center">
+<!-- Unselected -->
+</div>
+</div>
+</div>
+<!-- Node Item: Balance (Selected State) -->
+<div class="group relative flex items-center p-4 rounded-xl bg-surface-container-high cursor-pointer ring-1 ring-primary/50 shadow-[0_0_40px_rgba(105,217,192,0.06)] overflow-hidden">
+<!-- Selected Glow Indicator -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-primary-container"></div>
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center mr-4 shrink-0 shadow-[0_0_15px_rgba(105,217,192,0.3)]">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">balance</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<h4 class="font-body font-bold text-primary truncate">Balance</h4>
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-label font-bold tracking-widest border border-primary/20">ACTIVE</span>
+</div>
+<p class="text-sm text-on-surface-variant font-label tracking-wider">ROUND ROBIN</p>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="text-right">
+<span class="text-xs font-headline font-bold text-primary">45ms</span>
+</div>
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-[0_0_10px_rgba(105,217,192,0.4)]">
+<span class="material-symbols-outlined text-on-primary text-[16px] font-bold">check</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Premium Nodes Group -->
+<section class="space-y-4">
+<h3 class="font-label text-xs uppercase tracking-[0.1em] text-on-surface-variant pl-2 flex items-center gap-2">
+                        Premium Relays 
+                        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</h3>
+<div class="grid gap-3">
+<!-- Japan Node 1 -->
+<div class="group relative flex items-center p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer ring-1 ring-outline-variant/15 hover:ring-primary/30">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mr-4 shrink-0 overflow-hidden ring-1 ring-outline-variant">
+<!-- Flag Placeholder (Emoji or Image) -->
+<span class="text-xl">🇯🇵</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<h4 class="font-body font-medium text-on-surface truncate">Japan / 日本</h4>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs text-on-surface-variant font-label font-bold tracking-wider">VLESS</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-[10px] text-on-surface-variant font-mono">ID: JP-01</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="text-right">
+<span class="text-xs font-headline font-bold text-[#a078ff]">128ms</span>
+</div>
+<div class="w-6 h-6 rounded-full border border-outline-variant flex items-center justify-center"></div>
+</div>
+</div>
+<!-- Japan Node 2 -->
+<div class="group relative flex items-center p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer ring-1 ring-outline-variant/15 hover:ring-primary/30">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mr-4 shrink-0 overflow-hidden ring-1 ring-outline-variant">
+<span class="text-xl">🇯🇵</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<h4 class="font-body font-medium text-on-surface truncate">Japan / 日本 (Alt)</h4>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs text-on-surface-variant font-label font-bold tracking-wider">Hysteria2</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-[10px] text-on-surface-variant font-mono">ID: JP-02</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="text-right">
+<span class="text-xs font-headline font-bold text-error">210ms</span>
+</div>
+<div class="w-6 h-6 rounded-full border border-outline-variant flex items-center justify-center"></div>
+</div>
+</div>
+<!-- US Node -->
+<div class="group relative flex items-center p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer ring-1 ring-outline-variant/15 hover:ring-primary/30 opacity-60">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mr-4 shrink-0 overflow-hidden ring-1 ring-outline-variant">
+<span class="text-xl">🇺🇸</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<h4 class="font-body font-medium text-on-surface truncate">US West</h4>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs text-on-surface-variant font-label font-bold tracking-wider">VLESS</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-[10px] text-on-surface-variant font-mono">ID: USW-01</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="text-right">
+<span class="text-xs font-headline font-bold text-on-surface-variant">---</span>
+</div>
+<div class="w-6 h-6 rounded-full border border-outline-variant flex items-center justify-center"></div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Floating Action Button -->
+<button class="fixed bottom-28 md:bottom-12 right-6 z-40 w-14 h-14 bg-gradient-to-br from-primary to-primary-container rounded-full shadow-[0_0_30px_rgba(105,217,192,0.3)] flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</button>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-[#131313]/80 backdrop-blur-2xl text-[#69d9c0] font-['Manrope'] uppercase tracking-widest text-[10px] font-bold fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe px-4 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-[1px] after:bg-[#3d4945]/15 shadow-[0_-8px_30px_rgb(105,217,192,0.06)] rounded-t-2xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-[#69d9c0] transition-all active:scale-90 duration-200 w-16" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">shield</span>
+<span class="truncate w-full text-center">Shield</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#69d9c0] relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-[#69d9c0] after:rounded-full after:animate-pulse hover:text-[#69d9c0] transition-all active:scale-90 duration-200 w-16" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">dns</span>
+<span class="truncate w-full text-center">Nodes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-[#69d9c0] transition-all active:scale-90 duration-200 w-16" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">analytics</span>
+<span class="truncate w-full text-center">Analytics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-[#69d9c0] transition-all active:scale-90 duration-200 w-16" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">vpn_lock</span>
+<span class="truncate w-full text-center">Secure</span>
+</a>
+</nav>
+</main>
+</div>
+</body></html>

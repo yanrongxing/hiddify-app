@@ -273,13 +273,7 @@ class SettingsPage extends HookConsumerWidget {
                 _MenuItem(
                   icon: Icons.storefront_rounded,
                   title: '订阅商店',
-                  onTap: () {
-                    if (ref.read(isAuthenticatedProvider)) {
-                      context.pushNamed('shop');
-                    } else {
-                      context.push('/login');
-                    }
-                  },
+                  onTap: () => context.pushNamed('shop'),
                 ),
               _MenuItem(icon: Icons.qr_code_scanner_rounded, title: '掃描二維碼', onTap: () {}),
               _MenuItem(icon: Icons.share_rounded, title: t.pages.share.title, onTap: () {
