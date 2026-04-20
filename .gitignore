@@ -73,3 +73,4 @@ windows/sign.cer
 .fvm
 .fvmrc
 core.tar.gz
+scripts/node_modules

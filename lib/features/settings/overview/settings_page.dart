@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/preferences/feature_flags.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
@@ -44,7 +45,10 @@ class SettingsPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.goNamed('home')),
-        title: Text(t.pages.xlink.personalCenter, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        title: Text(
+          t.pages.xlink.personalCenter,
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -122,9 +126,7 @@ class SettingsPage extends HookConsumerWidget {
                               ),
                               const Gap(8),
                               Text(
-                                isAuthenticated
-                                    ? (user?.planName ?? t.pages.xlink.freeUser)
-                                    : t.pages.xlink.guest,
+                                isAuthenticated ? (user?.planName ?? t.pages.xlink.freeUser) : t.pages.xlink.guest,
                                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                             ],
@@ -167,7 +169,10 @@ class SettingsPage extends HookConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(t.pages.xlink.mySubscription, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                              Text(
+                                t.pages.xlink.mySubscription,
+                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                              ),
                               if (user.expiredAt != null)
                                 Text(
                                   '${t.pages.xlink.expires}: ${DateTime.fromMillisecondsSinceEpoch(user.expiredAt! * 1000).toString().split(' ')[0]}',
@@ -270,7 +275,11 @@ class SettingsPage extends HookConsumerWidget {
           _MenuGroup(
             children: [
               if (FeatureFlags.enableSubscriptionShop)
-                _MenuItem(icon: Icons.storefront_rounded, title: t.pages.xlink.subscriptionShop, onTap: () => context.pushNamed('shop')),
+                _MenuItem(
+                  icon: Icons.storefront_rounded,
+                  title: t.pages.xlink.subscriptionShop,
+                  onTap: () => context.pushNamed('shop'),
+                ),
               _MenuItem(icon: Icons.qr_code_scanner_rounded, title: t.pages.xlink.scanQrCode, onTap: () {}),
               _MenuItem(
                 icon: Icons.share_rounded,
@@ -283,7 +292,12 @@ class SettingsPage extends HookConsumerWidget {
                   }
                 },
               ),
-              _MenuItem(icon: Icons.local_activity_rounded, title: t.pages.xlink.coupons, onTap: () {}, showBorder: false),
+              _MenuItem(
+                icon: Icons.local_activity_rounded,
+                title: t.pages.xlink.coupons,
+                onTap: () {},
+                showBorder: false,
+              ),
             ],
           ),
           const Gap(16),
@@ -309,7 +323,7 @@ class SettingsPage extends HookConsumerWidget {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => InAppBrowserPage(url: 'https://47.79.38.161/#/tutorial', title: t.pages.xlink.helpCenter),
+                      builder: (_) => InAppBrowserPage(url: Constants.tutorialUrl, title: t.pages.xlink.helpCenter),
                     ),
                   );
                 },

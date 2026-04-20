@@ -1,7 +1,7 @@
 name: hiddify
 description: Cross Platform Multi Protocol Proxy Frontend.
 publish_to: "none"
-version: 4.1.1+40101
+version: 1.0.1+40101
 
 environment:
   sdk: ^3.10.4
@@ -149,6 +149,7 @@ dev_dependencies:
   slang_build_runner: 4.10.0
   flutter_gen_runner: ^5.4.0
   dart_mappable_builder: ^4.2.1
+  flutter_launcher_icons: ^0.14.4
   # protoc_builder: ^0.4.1
   # google_protobuf: ^3.20.1;
 
@@ -188,11 +189,11 @@ flutter_gen:
     flutter_svg: true
 
 flutter_native_splash:
-  color: "#ffffff"
-  image: assets/images/source/ic_launcher_splash.png
+  color: "#202020"
+  image: assets/images/source/ic_launcher_1024.png
   android_gravity: center
   android_12:
-    color: "#ffffff"
+    color: "#202020"
     image: assets/images/source/ic_launcher_foreground.png
 
 ffigen:

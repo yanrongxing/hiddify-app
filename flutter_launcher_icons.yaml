@@ -1,0 +1,14 @@
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/images/source/ic_launcher_1024.png"
+  adaptive_icon_background: "#202020"
+  adaptive_icon_foreground: "assets/images/source/ic_launcher_foreground.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  windows:
+    generate: true
+    image_path: "assets/images/source/ic_launcher_1024.png"
+    icon_size: 256 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/images/source/ic_launcher_1024.png"

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/app_info/app_info_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/preferences/feature_flags.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
@@ -52,7 +53,10 @@ class HomePage extends HookConsumerWidget {
         centerTitle: true,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Assets.images.logo.svg(),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Assets.images.logo.svg(),
+          ),
         ),
         title: const Text(
           "XLINK VPN",
@@ -92,9 +96,7 @@ class HomePage extends HookConsumerWidget {
                             top: 0,
                             left: 0,
                             right: 0,
-                            child: HomeDataCard(
-                              profile: activeProfile.valueOrNull,
-                            ),
+                            child: HomeDataCard(profile: activeProfile.valueOrNull),
                           ),
                           const ConnectionButton(),
                           const Positioned(bottom: 0, left: 0, right: 0, child: ActiveProxyFooter()),
@@ -149,7 +151,7 @@ class HomeDataCard extends HookConsumerWidget {
     final theme = Theme.of(context);
     final t = ref.watch(translationsProvider).requireValue;
     final isAuth = ref.watch(authNotifierProvider) is Authenticated;
-    
+
     if (profile == null) {
       return Container(
         width: double.infinity,
@@ -193,7 +195,7 @@ class HomeDataCard extends HookConsumerWidget {
                         if (FeatureFlags.enableSubscriptionShop) {
                           context.pushNamed('shop');
                         } else {
-                          UriUtils.tryLaunch(Uri.parse('https://47.79.38.161/#/plan'));
+                          UriUtils.tryLaunch(Uri.parse(Constants.shopUrl));
                         }
                       } else {
                         context.pushNamed('login');
@@ -214,17 +216,18 @@ class HomeDataCard extends HookConsumerWidget {
     final authUser = authState is Authenticated ? authState.user : null;
 
     // Plan name: prefer auth user's plan name (from API), fallback to profile sub info
-    final plan = authUser?.planName ?? (subInfo != null ? t.pages.xlink.subscriptionShop : t.pages.xlink.noSubscription);
+    final plan =
+        authUser?.planName ?? (subInfo != null ? t.pages.xlink.subscriptionShop : t.pages.xlink.noSubscription);
     final daysLeft = authUser?.expiredAt != null
-        ? (DateTime.fromMillisecondsSinceEpoch(authUser!.expiredAt! * 1000).difference(DateTime.now()).inDays).clamp(0, 9999)
+        ? (DateTime.fromMillisecondsSinceEpoch(
+            authUser!.expiredAt! * 1000,
+          ).difference(DateTime.now()).inDays).clamp(0, 9999)
         : (subInfo != null && !subInfo.isExpired ? subInfo.remaining.inDays : 0);
 
     final bool hasApiTraffic = authUser != null && authUser.transferEnable > 0;
     final int usedBytes = hasApiTraffic ? (authUser!.u + authUser.d) : 0;
     final int totalBytes = hasApiTraffic ? authUser!.transferEnable : 0;
-    final double usagePercent = totalBytes > 0
-        ? (usedBytes / totalBytes).clamp(0.0, 1.0)
-        : (subInfo?.ratio ?? 0.0);
+    final double usagePercent = totalBytes > 0 ? (usedBytes / totalBytes).clamp(0.0, 1.0) : (subInfo?.ratio ?? 0.0);
     // Smart formatter: < 1 GB → show in MB, otherwise GB
     (String value, String unit) formatBytes(int bytes) {
       const gb = 1024 * 1024 * 1024;
@@ -235,12 +238,11 @@ class HomeDataCard extends HookConsumerWidget {
         return ((bytes / mb).toStringAsFixed(1), 'MB');
       }
     }
+
     final (consumedVal, consumedUnit) = hasApiTraffic
         ? formatBytes(usedBytes)
         : (subInfo?.consumption.sizeGB() ?? '0.0', 'GB');
-    final (totalVal, totalUnit) = hasApiTraffic
-        ? formatBytes(totalBytes)
-        : (subInfo?.total.sizeGB() ?? '0.0', 'GB');
+    final (totalVal, totalUnit) = hasApiTraffic ? formatBytes(totalBytes) : (subInfo?.total.sizeGB() ?? '0.0', 'GB');
 
     return Container(
       width: double.infinity,
@@ -358,34 +360,34 @@ class HomeDataCard extends HookConsumerWidget {
                           ],
                         ),
                       ),
-                      ],
+                    ],
+                  ),
+                  const Gap(8),
+                  Container(
+                    height: 8,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    const Gap(8),
-                    Container(
-                      height: 8,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: usagePercent,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF69d9c0), Color(0xFF26a28b)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(4),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: usagePercent,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF69d9c0), Color(0xFF26a28b)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
             Positioned(
               top: 0,
               left: 0,
@@ -450,12 +452,12 @@ class HomeDataCard extends HookConsumerWidget {
                         if (FeatureFlags.enableSubscriptionShop) {
                           context.pushNamed('shop');
                         } else {
-                          UriUtils.tryLaunch(Uri.parse('https://47.79.38.161/#/plan'));
+                          UriUtils.tryLaunch(Uri.parse(Constants.shopUrl));
                         }
                       }
                       return;
                     }
-                    
+
                     if (p is RemoteProfileEntity) {
                       ref.read(updateProfileNotifierProvider(p.id).notifier).updateProfile(p);
                     }

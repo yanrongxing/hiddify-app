@@ -89,7 +89,10 @@ class AboutPage extends HookConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Assets.images.logo.svg(width: 64, height: 64),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Assets.images.logo.svg(width: 64, height: 64),
+                  ),
                   const Gap(16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,20 +110,20 @@ class AboutPage extends HookConsumerWidget {
             delegate: SliverChildListDelegate([
               ...conditionalTiles,
               if (conditionalTiles.isNotEmpty) const Divider(),
-              ListTile(
-                title: Text(t.pages.about.sourceCode),
-                trailing: const Icon(FluentIcons.open_24_regular),
-                onTap: () async {
-                  await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
-                },
-              ),
-              ListTile(
-                title: Text(t.pages.about.telegramChannel),
-                trailing: const Icon(FluentIcons.open_24_regular),
-                onTap: () async {
-                  await UriUtils.tryLaunch(Uri.parse(Constants.telegramChannelUrl));
-                },
-              ),
+              // ListTile(
+              //   title: Text(t.pages.about.sourceCode),
+              //   trailing: const Icon(FluentIcons.open_24_regular),
+              //   onTap: () async {
+              //     await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
+              //   },
+              // ),
+              // ListTile(
+              //   title: Text(t.pages.about.telegramChannel),
+              //   trailing: const Icon(FluentIcons.open_24_regular),
+              //   onTap: () async {
+              //     await UriUtils.tryLaunch(Uri.parse(Constants.telegramChannelUrl));
+              //   },
+              // ),
               ListTile(
                 title: Text(t.pages.about.termsAndConditions),
                 trailing: const Icon(FluentIcons.open_24_regular),

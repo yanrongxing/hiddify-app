@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
@@ -163,14 +164,8 @@ class ConnectionButton extends HookConsumerWidget {
                 title: const Text('需要登录'),
                 content: const Text('请先登录或注册后再连接 VPN。'),
                 actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('取消'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('前往登录/注册'),
-                  ),
+                  TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('取消')),
+                  TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('前往登录/注册')),
                 ],
               );
             },
@@ -192,20 +187,14 @@ class ConnectionButton extends HookConsumerWidget {
                   title: const Text('无可用订阅'),
                   content: const Text('您尚未订阅或订阅已过期，请前往购买订阅套餐。'),
                   actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('取消'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('前往订阅'),
-                    ),
+                    TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('取消')),
+                    TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('前往订阅')),
                   ],
                 );
               },
             );
             if (shouldSubscribe == true && context.mounted) {
-              UriUtils.tryLaunch(Uri.parse('https://47.79.38.161/#/plan'));
+              UriUtils.tryLaunch(Uri.parse(Constants.shopUrl));
             }
             return;
           }
@@ -319,12 +308,17 @@ class _ConnectionButtonState extends State<_ConnectionButton> {
               Widget buildRing(double size, double opacity, bool reverse) {
                 if (widget.isConnecting) {
                   return SizedBox(
-                    width: size,
-                    height: size,
-                    child: CustomPaint(
-                      painter: RadarBorderPainter(scheme.primary.withValues(alpha: opacity * 3)),
-                    ),
-                  ).animate(onPlay: (c) => c.repeat()).rotate(duration: const Duration(seconds: 2), curve: Curves.linear, begin: reverse ? 1 : 0, end: reverse ? 0 : 1);
+                        width: size,
+                        height: size,
+                        child: CustomPaint(painter: RadarBorderPainter(scheme.primary.withValues(alpha: opacity * 3))),
+                      )
+                      .animate(onPlay: (c) => c.repeat())
+                      .rotate(
+                        duration: const Duration(seconds: 2),
+                        curve: Curves.linear,
+                        begin: reverse ? 1 : 0,
+                        end: reverse ? 0 : 1,
+                      );
                 } else {
                   return Container(
                     width: size,
@@ -354,81 +348,80 @@ class _ConnectionButtonState extends State<_ConnectionButton> {
                       children: [
                         buildRing(320, 0.1, false),
                         buildRing(281.6, 0.2, true),
-                    Container(
-                      width: 256,
-                      height: 256,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: scheme.primary.withValues(alpha: 0.3), width: 1),
-                        boxShadow: [
-                        BoxShadow(
-                            color: widget.buttonColor.withValues(alpha: 0.3),
-                            blurRadius: 40,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        color: isDark ? scheme.surfaceContainerLow : Colors.white,
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: widget.onTap,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Internal glass effect gradient
-                              Positioned.fill(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        scheme.primary.withValues(alpha: 0.05),
-                                        Colors.transparent,
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.power_settings_new_rounded,
-                                    size: 48,
-                                    color: widget.buttonColor,
-                                    shadows: [Shadow(color: widget.buttonColor.withValues(alpha: 0.8), blurRadius: 15)],
-                                  ),
-                                  const Gap(16),
-                                  AnimatedText(
-                                    widget.label.toUpperCase(),
-                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                      color: widget.buttonColor,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 4.0, // tracking-widest
-                                      fontSize: 24, // text-2xl
-                                      fontFamily: 'Space Grotesk',
-                                    ),
-                                  ),
-                                  const Gap(8),
-                                  const ActiveProxyDelayIndicator(),
-                                ],
+                        Container(
+                          width: 256,
+                          height: 256,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: scheme.primary.withValues(alpha: 0.3), width: 1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: widget.buttonColor.withValues(alpha: 0.3),
+                                blurRadius: 40,
+                                spreadRadius: 0,
                               ),
                             ],
+                            color: isDark ? scheme.surfaceContainerLow : Colors.white,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: widget.onTap,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // Internal glass effect gradient
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [scheme.primary.withValues(alpha: 0.05), Colors.transparent],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.power_settings_new_rounded,
+                                        size: 48,
+                                        color: widget.buttonColor,
+                                        shadows: [
+                                          Shadow(color: widget.buttonColor.withValues(alpha: 0.8), blurRadius: 15),
+                                        ],
+                                      ),
+                                      const Gap(16),
+                                      AnimatedText(
+                                        widget.label.toUpperCase(),
+                                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                          color: widget.buttonColor,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 4.0, // tracking-widest
+                                          fontSize: 24, // text-2xl
+                                          fontFamily: 'Space Grotesk',
+                                        ),
+                                      ),
+                                      const Gap(8),
+                                      const ActiveProxyDelayIndicator(),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
-      ),
-    ),
+              );
+            },
+          ),
+        ),
         if (widget.secureLabel.isNotEmpty) ...[
           const Gap(16),
           Row(
