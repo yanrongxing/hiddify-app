@@ -207,7 +207,11 @@ class HomeDataCard extends HookConsumerWidget {
 
     final isDark = theme.brightness == Brightness.dark;
 
-    if (profile == null) {
+    // Show "no subscription" card when:
+    // - No local profile exists, OR
+    // - User is authenticated but has no active plan (planId is null)
+    final hasNoPlan = isAuth && (authState as Authenticated).user.planId == null;
+    if (profile == null || hasNoPlan) {
       final isOverLimit = isAuth && !canConnectVpn;
 
       return Container(
