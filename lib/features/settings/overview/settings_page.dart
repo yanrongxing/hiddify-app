@@ -271,7 +271,7 @@ class SettingsPage extends HookConsumerWidget {
             children: [
               if (FeatureFlags.enableSubscriptionShop)
                 _MenuItem(icon: Icons.storefront_rounded, title: t.pages.xlink.subscriptionShop, onTap: () => context.pushNamed('shop')),
-              _MenuItem(icon: Icons.qr_code_scanner_rounded, title: '掃描二維碼', onTap: () {}),
+              _MenuItem(icon: Icons.qr_code_scanner_rounded, title: t.pages.xlink.scanQrCode, onTap: () {}),
               _MenuItem(
                 icon: Icons.share_rounded,
                 title: t.pages.share.title,
@@ -479,7 +479,7 @@ class AdvancedSettingsPage extends HookConsumerWidget {
               if (!FeatureFlags.hideAdvancedSettings) ...[
                 _MenuItem(
                   icon: Icons.data_usage_rounded,
-                  title: '流量记录 (Traffic Records)',
+                  title: t.pages.xlink.trafficRecords,
                   onTap: () => context.go(context.namedLocation('trafficRecords')),
                 ),
                 _MenuItem(
