@@ -34,6 +34,7 @@ import 'package:hiddify/features/ticket/widget/support_page.dart';
 import 'package:hiddify/features/ticket/widget/ticket_center_page.dart';
 import 'package:hiddify/features/ticket/widget/ticket_detail_page.dart';
 import 'package:hiddify/features/ticket/widget/in_app_browser_page.dart';
+import 'package:hiddify/features/share/widget/share_page.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -251,6 +252,11 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                         final title = state.uri.queryParameters['title'] ?? 'Browser';
                         return customTransition(TransitionType.slide, state.pageKey, InAppBrowserPage(url: targetUrl, title: title));
                       },
+                    ),
+                    GoRoute(
+                      name: 'share',
+                      path: '/share',
+                      pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const SharePage()),
                     ),
                     if (!FeatureFlags.hideAdvancedSettings)
                       GoRoute(

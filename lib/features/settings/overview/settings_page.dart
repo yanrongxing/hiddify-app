@@ -9,6 +9,7 @@ import 'package:hiddify/features/auth/model/auth_state.dart';
 import 'package:hiddify/features/auth/notifier/auth_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
+import 'package:hiddify/features/ticket/widget/in_app_browser_page.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hiddify/core/localization/locale_preferences.dart';
 import 'package:hiddify/core/localization/locale_extensions.dart';
@@ -281,7 +282,13 @@ class SettingsPage extends HookConsumerWidget {
                   },
                 ),
               _MenuItem(icon: Icons.qr_code_scanner_rounded, title: '掃描二維碼', onTap: () {}),
-              _MenuItem(icon: Icons.share_rounded, title: '分享', onTap: () {}),
+              _MenuItem(icon: Icons.share_rounded, title: t.pages.share.title, onTap: () {
+                if (ref.read(authNotifierProvider) is Authenticated) {
+                  context.pushNamed('share');
+                } else {
+                  context.push('/login');
+                }
+              }),
               _MenuItem(icon: Icons.local_activity_rounded, title: '卡券', onTap: () {}, showBorder: false),
             ],
           ),
@@ -302,7 +309,20 @@ class SettingsPage extends HookConsumerWidget {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AdvancedSettingsPage()));
                 },
               ),
-              _MenuItem(icon: Icons.help_outline_rounded, title: '幫助中心', onTap: () {}),
+              _MenuItem(
+                icon: Icons.help_outline_rounded,
+                title: '幫助中心',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const InAppBrowserPage(
+                        url: 'https://47.79.38.161/#/tutorial',
+                        title: '幫助中心',
+                      ),
+                    ),
+                  );
+                },
+              ),
               _MenuItem(
                 icon: Icons.support_agent_rounded,
                 title: '在線客服',
