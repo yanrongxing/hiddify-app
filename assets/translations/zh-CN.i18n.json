@@ -105,7 +105,8 @@
       "sortOptions": {
         "unsorted": "默认",
         "name": "按名称",
-        "delay": "按延迟"
+        "delay": "按延迟",
+        "usage": "按使用量"
       },
       "ipInfo": {
         "address": "IP 地址",
@@ -283,10 +284,10 @@
           "other": "其他"
         },
         "balancerStrategy": {
-          "title": "Balancer 策略",
-          "roundRobin": "Round robin",
-          "consistentHash": "Consistent hash",
-          "stickySession": "Sticky session"
+          "title": "负载均衡策略",
+          "roundRobin": "轮询 (Round robin)",
+          "consistentHash": "一致性哈希 (Consistent hash)",
+          "stickySession": "会话保持 (Sticky session)"
         },
         "blockAds": "拦截广告",
         "bypassLan": "绕过局域网",
@@ -581,7 +582,13 @@
       "couponDiscount": "优惠抵扣",
       "orderTotal": "合计",
       "placeOrder": "立即下单",
-      "savingsPercent": "省 ${percent}%"
+      "savingsPercent": "省 ${percent}%",
+      "days": "天",
+      "currentNode": "当前节点",
+      "systemBalancers": "系统负载均衡组",
+      "premiumRelays": "优质中继节点",
+      "balancer": "负载均衡",
+      "active": "已连接"
     }
   },
   "components": {

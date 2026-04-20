@@ -582,7 +582,13 @@
       "couponDiscount": "Coupon Discount",
       "orderTotal": "Total",
       "placeOrder": "Place Order",
-      "savingsPercent": "Save ${percent}%"
+      "savingsPercent": "Save ${percent}%",
+      "days": "DAYS",
+      "currentNode": "CURRENT NODE",
+      "systemBalancers": "SYSTEM BALANCERS",
+      "premiumRelays": "PREMIUM RELAYS",
+      "balancer": "BALANCER",
+      "active": "ACTIVE"
     }
   },
   "components": {

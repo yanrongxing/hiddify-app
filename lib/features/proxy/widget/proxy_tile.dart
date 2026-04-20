@@ -129,7 +129,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
                                   border: Border.all(color: scheme.primary.withValues(alpha: 0.2)),
                                 ),
                                 child: Text(
-                                  "ACTIVE",
+                                  t.pages.xlink.active.toUpperCase(),
                                   style: theme.textTheme.labelSmall?.copyWith(
                                     color: scheme.primary,
                                     fontSize: 9,
@@ -145,7 +145,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
                         Row(
                           children: [
                             Text(
-                              proxy.type.toUpperCase(),
+                              proxy.type.toLowerCase() == 'balancer' ? t.pages.xlink.balancer.toUpperCase() : proxy.type.toUpperCase(),
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: scheme.onSurfaceVariant,
                                 fontWeight: FontWeight.bold,
