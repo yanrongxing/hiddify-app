@@ -220,16 +220,25 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
   /// Refresh user info from the API (used internally, prefer refreshFullProfile for UI).
   Future<void> refreshUserInfo() async {
     final current = state;
-    if (current is! Authenticated) return;
+    if (current is! Authenticated) {
+      print('[REFRESH_USER] Skipped: not authenticated');
+      return;
+    }
     try {
+      print('[REFRESH_USER] Calling getUserInfo...');
       final updatedUser = await _authRepo.getUserInfo();
+      print('[REFRESH_USER] Got: canConnectVpn=${updatedUser.canConnectVpn}, deviceLimit=${updatedUser.deviceLimit}, planId=${updatedUser.planId}');
       state = AuthState.authenticated(
         user: updatedUser,
         authToken: current.authToken,
       );
+      print('[REFRESH_USER] State updated');
     } on AuthException catch (e) {
       loggy.warning('Failed to refresh user info: ${e.message}');
+      print('[REFRESH_USER] AuthException: ${e.message}');
       await _handleAuthException(e);
+    } catch (e) {
+      print('[REFRESH_USER] Unexpected error: $e');
     }
   }
 

@@ -116,7 +116,7 @@ class HomePage extends HookConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle, color: theme.colorScheme.onSurface, size: 28),
-            onPressed: () => context.push('/settings'),
+            onPressed: () => context.goNamed('settings'),
           ),
           const Gap(8),
         ],

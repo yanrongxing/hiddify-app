@@ -47,7 +47,13 @@ class SettingsPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.goNamed('home')),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            ref.read(authNotifierProvider.notifier).refreshUserInfo();
+            context.goNamed('home');
+          },
+        ),
         title: Text(
           t.pages.xlink.personalCenter,
           style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),

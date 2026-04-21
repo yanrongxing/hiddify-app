@@ -187,7 +187,10 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                     node: branchesScope['settings'],
                     child: PopScope(
                       canPop: false,
-                      onPopInvokedWithResult: (_, _) => context.goNamed('home'),
+                      onPopInvokedWithResult: (_, _) {
+                        ref.read(authNotifierProvider.notifier).refreshUserInfo();
+                        context.goNamed('home');
+                      },
                       child: SettingsPage(),
                     ),
                   ),

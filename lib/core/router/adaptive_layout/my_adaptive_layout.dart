@@ -30,6 +30,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
     // Refresh user info on every tab switch (home ↔ settings)
     // Uses /api/v1/user/info which returns can_connect_vpn and device_limit
     useEffect(() {
+      print('[TAB_SWITCH] currentIndex=${navigationShell.currentIndex}, calling refreshUserInfo');
       ref.read(authNotifierProvider.notifier).refreshUserInfo();
       return null;
     }, [navigationShell.currentIndex]);
