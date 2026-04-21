@@ -27,10 +27,10 @@ class MyAdaptiveLayout extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
 
-    // Refresh subscription status on every tab switch
-    // (pages in IndexedStack stay alive, useEffect([]) only fires on first mount)
+    // Refresh user info on every tab switch (home ↔ settings)
+    // Uses /api/v1/user/info which returns can_connect_vpn and device_limit
     useEffect(() {
-      ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true);
+      ref.read(authNotifierProvider.notifier).refreshUserInfo();
       return null;
     }, [navigationShell.currentIndex]);
 

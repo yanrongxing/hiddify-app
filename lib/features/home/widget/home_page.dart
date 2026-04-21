@@ -32,11 +32,11 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Force-check subscription status when app resumes from background
+    // Refresh user info when app resumes from background
     final lifecycleState = useAppLifecycleState();
     useEffect(() {
       if (lifecycleState == AppLifecycleState.resumed) {
-        ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true);
+        ref.read(authNotifierProvider.notifier).refreshUserInfo();
       }
       return null;
     }, [lifecycleState]);
