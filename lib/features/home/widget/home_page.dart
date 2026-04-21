@@ -32,8 +32,7 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Always force-check subscription status on mount and resume
-    // This is the user's primary screen — must always show fresh data
+    // Force-check subscription status when app resumes from background
     final lifecycleState = useAppLifecycleState();
     useEffect(() {
       if (lifecycleState == AppLifecycleState.resumed) {
@@ -41,11 +40,6 @@ class HomePage extends HookConsumerWidget {
       }
       return null;
     }, [lifecycleState]);
-
-    useEffect(() {
-      Future.microtask(() => ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true));
-      return null;
-    }, []);
 
     useEffect(() {
       print('[HOME_UPDATE] useEffect triggered, will check in 2s');
