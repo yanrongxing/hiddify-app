@@ -39,9 +39,12 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       final email = prefs.getString(_kUserEmail);
       if (token != null && token.isNotEmpty && email != null) {
         _authRepo.setAuthToken(token);
-        // Return authenticated with minimal info; then async-refresh
-        // subscription details in the background.
-        Future.microtask(() => checkSubscriptionStatus());
+        // Refresh full user info (including can_connect_vpn and device_limit)
+        // from /api/v1/user/info, then check subscription for node sync decisions.
+        Future.microtask(() async {
+          await refreshUserInfo();
+          await checkSubscriptionStatus(force: true);
+        });
         return AuthState.authenticated(
           user: UserModel(email: email),
           authToken: token,
