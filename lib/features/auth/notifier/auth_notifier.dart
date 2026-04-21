@@ -6,6 +6,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hiddify/features/auth/data/auth_data_providers.dart';
 import 'package:hiddify/features/auth/data/auth_repository.dart';
@@ -70,6 +71,31 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
     } catch (e) {
       loggy.error('Failed to force disconnect VPN', e);
     }
+  }
+
+  /// Show a SnackBar warning when device limit decreased but current device is still OK.
+  void _showDeviceLimitWarning(int oldLimit, int newLimit) {
+    final context = rootNavKey.currentContext;
+    if (context == null || !context.mounted) return;
+    final t = ref.read(translationsProvider).valueOrNull;
+    if (t == null) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          t.pages.xlink.deviceLimitDecreasedHint,
+        ),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        duration: const Duration(seconds: 6),
+        action: SnackBarAction(
+          label: t.pages.xlink.deviceManagement,
+          textColor: Theme.of(context).colorScheme.onError,
+          onPressed: () {
+            context.pushNamed('deviceManage');
+          },
+        ),
+      ),
+    );
   }
 
   Future<Map<String, dynamic>> _getDeviceInfo() async {
@@ -333,10 +359,11 @@ class AuthNotifier extends _$AuthNotifier with AppLogger {
       }
 
       // Decision: device limit decreased but this device is still within limit
-      // (can_connect_vpn is still true). Just log it — UI already updated above.
+      // (can_connect_vpn is still true). Notify user — other devices may be affected.
       if (deviceLimitDecreased && newCanConnect) {
         loggy.info('Device limit decreased from ${oldUser.deviceLimit} to $newDeviceLimit, '
             'but current device is still within limit');
+        _showDeviceLimitWarning(oldUser.deviceLimit!, newDeviceLimit!);
       }
 
       // Decision: sync nodes (plan changed, URL changed, plan added, or connect restored with plan)

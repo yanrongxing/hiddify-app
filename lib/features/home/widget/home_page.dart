@@ -32,7 +32,8 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Check subscription status when app resumes from background
+    // Check subscription status on mount and when app resumes from background
+    // 30s dedup prevents excessive API calls
     final lifecycleState = useAppLifecycleState();
     useEffect(() {
       if (lifecycleState == AppLifecycleState.resumed) {
@@ -40,6 +41,11 @@ class HomePage extends HookConsumerWidget {
       }
       return null;
     }, [lifecycleState]);
+
+    useEffect(() {
+      Future.microtask(() => ref.read(authNotifierProvider.notifier).checkSubscriptionStatus());
+      return null;
+    }, []);
 
     useEffect(() {
       print('[HOME_UPDATE] useEffect triggered, will check in 2s');
@@ -207,13 +213,13 @@ class HomeDataCard extends HookConsumerWidget {
 
     final isDark = theme.brightness == Brightness.dark;
 
-    // Show "no subscription" card when:
+    // Show "action required" card when:
     // - No local profile exists, OR
-    // - User is authenticated but has no active plan (planId is null)
+    // - User is authenticated but has no active plan (planId is null), OR
+    // - Device limit is reached (cannot connect)
+    final isOverLimit = isAuth && !canConnectVpn;
     final hasNoPlan = isAuth && (authState as Authenticated).user.planId == null;
-    if (profile == null || hasNoPlan) {
-      final isOverLimit = isAuth && !canConnectVpn;
-
+    if (profile == null || hasNoPlan || isOverLimit) {
       return Container(
         width: double.infinity,
         decoration: BoxDecoration(

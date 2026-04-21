@@ -602,6 +602,7 @@
       "lastActive": "Last active",
       "deviceLimitDialogTitle": "Device Limit (${current}/${limit})",
       "deviceLimitDialogHint": "Remove a device below to continue connecting.",
+      "deviceLimitDecreasedHint": "Device limit has been reduced. Some devices may be affected.",
       "noDeviceLimit": "Unlimited",
       "connect": "Connect",
       "removeSuccess": "Device removed",
