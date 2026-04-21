@@ -32,18 +32,18 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Check subscription status on mount and when app resumes from background
-    // 30s dedup prevents excessive API calls
+    // Always force-check subscription status on mount and resume
+    // This is the user's primary screen — must always show fresh data
     final lifecycleState = useAppLifecycleState();
     useEffect(() {
       if (lifecycleState == AppLifecycleState.resumed) {
-        ref.read(authNotifierProvider.notifier).checkSubscriptionStatus();
+        ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true);
       }
       return null;
     }, [lifecycleState]);
 
     useEffect(() {
-      Future.microtask(() => ref.read(authNotifierProvider.notifier).checkSubscriptionStatus());
+      Future.microtask(() => ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true));
       return null;
     }, []);
 
