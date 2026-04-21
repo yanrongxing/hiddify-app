@@ -20,6 +20,7 @@ class DeviceManagePage extends HookConsumerWidget {
     useEffect(() {
       Future.microtask(() {
         ref.read(sessionNotifierProvider.notifier).refresh();
+        ref.read(authNotifierProvider.notifier).checkSubscriptionStatus(force: true);
       });
       return null;
     }, []);
